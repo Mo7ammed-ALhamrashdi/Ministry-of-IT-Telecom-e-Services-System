@@ -16,6 +16,7 @@ import java.util.List;
 @Service
 public class  DocumentService {
 
+    // Manages uploaded document metadata for either applications or projects.
     private final DocumentRepository documentRepository;
     private final ApplicationRepository applicationRepository;
     private final ProjectRepository projectRepository;
@@ -32,6 +33,7 @@ public class  DocumentService {
 
     public DocumentDTO add(DocumentDTO dto) {
 
+        // A document must have exactly one parent before it is converted into an entity.
         validateDocumentParent(dto);
 
         Document document = new Document();
@@ -41,6 +43,7 @@ public class  DocumentService {
         document.setUploadDate(dto.getUploadDate());
 
         if (dto.getApplicationId() != null) {
+            // Application documents are linked only after confirming the application is active.
             document.setApplication(
                     findApplicationById(
                             dto.getApplicationId()
@@ -70,6 +73,7 @@ public class  DocumentService {
         List<Document> documents =
                 documentRepository.findAll()
                         .stream()
+                        // Soft-deleted documents are omitted from normal document listings.
                         .filter(document ->
                                 Boolean.TRUE.equals(
                                         document.getIsActive()
@@ -98,6 +102,7 @@ public class  DocumentService {
         Document document =
                 findDocumentById(id);
 
+        // Parent links are reset so the update cannot leave both relationships attached.
         document.setTitle(dto.getTitle());
         document.setType(dto.getType());
         document.setUploadDate(dto.getUploadDate());
@@ -144,6 +149,7 @@ public class  DocumentService {
     private void validateDocumentParent(
             DocumentDTO dto) {
 
+        // Documents are modeled as belonging to either one application or one project, never neither.
         if (dto.getApplicationId() == null
                 && dto.getProjectId() == null) {
 
