@@ -9,10 +9,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/spectrumLicense")
+// Handles spectrum license endpoints for telecom licensing workflows.
 public class SpectrumLicenseController {
 
+    // SpectrumLicenseService centralizes license rules and data access coordination.
     private final SpectrumLicenseService spectrumLicenseService;
 
+    // Spring injects the service through this constructor when building the controller bean.
     public SpectrumLicenseController(
             SpectrumLicenseService spectrumLicenseService) {
 
@@ -20,6 +23,7 @@ public class SpectrumLicenseController {
                 spectrumLicenseService;
     }
 
+    // Creates a license from validated request data before returning the saved DTO.
     @PostMapping("/add")
     public SpectrumLicenseDTO add(
             @Valid @RequestBody SpectrumLicenseDTO dto) {
@@ -40,6 +44,7 @@ public class SpectrumLicenseController {
         return spectrumLicenseService.getById(id);
     }
 
+    // This business query returns licenses that are close to expiration.
     @GetMapping("/expiringSoon")
     public List<SpectrumLicenseDTO>
     getExpiringSoon() {
@@ -48,6 +53,7 @@ public class SpectrumLicenseController {
                 .getExpiringWithin30Days();
     }
 
+    // PUT updates an existing license using both the URL id and the request DTO.
     @PutMapping("/update/{id}")
     public SpectrumLicenseDTO update(
             @PathVariable Long id,
