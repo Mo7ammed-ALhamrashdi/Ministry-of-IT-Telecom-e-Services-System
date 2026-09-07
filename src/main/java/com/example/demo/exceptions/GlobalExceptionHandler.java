@@ -14,16 +14,19 @@ import java.util.Map;
 @RestControllerAdvice
 public class GlobalExceptionHandler {
 
+    // 404 - Resource Not Found
     @ExceptionHandler(ResourceNotFoundException.class)
-    public ResponseEntity<ErrorResponse> handleResourceNotFoundException(
+    public ResponseEntity<ErrorResponse>
+    handleResourceNotFoundException(
             ResourceNotFoundException exception) {
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.NOT_FOUND.value(),
-                HttpStatus.NOT_FOUND.getReasonPhrase(),
-                exception.getMessage(),
-                LocalDateTime.now()
-        );
+        ErrorResponse errorResponse =
+                new ErrorResponse(
+                        HttpStatus.NOT_FOUND.value(),
+                        HttpStatus.NOT_FOUND.getReasonPhrase(),
+                        exception.getMessage(),
+                        LocalDateTime.now()
+                );
 
         return new ResponseEntity<>(
                 errorResponse,
@@ -31,14 +34,41 @@ public class GlobalExceptionHandler {
         );
     }
 
+
+    // 400 - Business Logic Errors
+    @ExceptionHandler(IllegalArgumentException.class)
+    public ResponseEntity<ErrorResponse>
+    handleIllegalArgumentException(
+            IllegalArgumentException exception) {
+
+        ErrorResponse errorResponse =
+                new ErrorResponse(
+                        HttpStatus.BAD_REQUEST.value(),
+                        HttpStatus.BAD_REQUEST.getReasonPhrase(),
+                        exception.getMessage(),
+                        LocalDateTime.now()
+                );
+
+        return new ResponseEntity<>(
+                errorResponse,
+                HttpStatus.BAD_REQUEST
+        );
+    }
+
+
+    // 400 - Validation Errors
     @ExceptionHandler(MethodArgumentNotValidException.class)
-    public ResponseEntity<Map<String, Object>> handleValidationException(
+    public ResponseEntity<Map<String, Object>>
+    handleValidationException(
             MethodArgumentNotValidException exception) {
 
-        Map<String, String> validationErrors = new HashMap<>();
+        Map<String, String> validationErrors =
+                new HashMap<>();
 
         for (FieldError error :
-                exception.getBindingResult().getFieldErrors()) {
+                exception
+                        .getBindingResult()
+                        .getFieldErrors()) {
 
             validationErrors.put(
                     error.getField(),
@@ -46,7 +76,8 @@ public class GlobalExceptionHandler {
             );
         }
 
-        Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response =
+                new HashMap<>();
 
         response.put(
                 "status",
@@ -79,16 +110,21 @@ public class GlobalExceptionHandler {
         );
     }
 
+
+    // 500 - Unexpected Errors
     @ExceptionHandler(Exception.class)
-    public ResponseEntity<ErrorResponse> handleGeneralException(
+    public ResponseEntity<ErrorResponse>
+    handleGeneralException(
             Exception exception) {
 
-        ErrorResponse errorResponse = new ErrorResponse(
-                HttpStatus.INTERNAL_SERVER_ERROR.value(),
-                HttpStatus.INTERNAL_SERVER_ERROR.getReasonPhrase(),
-                exception.getMessage(),
-                LocalDateTime.now()
-        );
+        ErrorResponse errorResponse =
+                new ErrorResponse(
+                        HttpStatus.INTERNAL_SERVER_ERROR.value(),
+                        HttpStatus.INTERNAL_SERVER_ERROR
+                                .getReasonPhrase(),
+                        exception.getMessage(),
+                        LocalDateTime.now()
+                );
 
         return new ResponseEntity<>(
                 errorResponse,
