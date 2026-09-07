@@ -1,5 +1,6 @@
 package com.example.demo.entities;
 
+import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.Table;
 import lombok.Getter;
@@ -10,12 +11,15 @@ import lombok.Setter;
 @Entity
 @Table(name = "ministries")
 public class Ministry extends BaseClass {
+    @Column(nullable = false, length = 100)
+    private String name;
 
-    // name
+    @Column(length = 200)
+    private String address;
 
-    // address
+    // TODO:
+    // One Ministry has many Departments
 
-    // relationship with Department
-
-    // relationship with Project
+    // TODO:
+    // One Ministry has many Projects
 }
