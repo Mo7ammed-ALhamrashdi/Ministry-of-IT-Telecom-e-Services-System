@@ -1,4 +1,8 @@
 package com.example.demo.enums;
 
-public class ProjectStatus {
+public enum ProjectStatus {
+    PLANNED,
+    IN_PROGRESS,
+    COMPLETED,
+    CANCELLED
 }
