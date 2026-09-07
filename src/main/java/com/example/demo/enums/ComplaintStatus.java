@@ -1,4 +1,8 @@
 package com.example.demo.enums;
 
-public class ComplaintStatus {
+public enum ComplaintStatus {
+    OPEN,
+    IN_PROGRESS,
+    RESOLVED
 }
+
