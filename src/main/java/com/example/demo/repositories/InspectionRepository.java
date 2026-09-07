@@ -1,4 +1,10 @@
 package com.example.demo.repositories;
 
-public class InspectionRepository {
+import com.example.demo.entities.Inspection;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface InspectionRepository
+        extends JpaRepository<Inspection, Long> {
 }
