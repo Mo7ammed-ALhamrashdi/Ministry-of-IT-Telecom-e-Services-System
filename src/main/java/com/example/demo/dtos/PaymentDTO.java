@@ -38,6 +38,7 @@ public class PaymentDTO {
     private Long applicationId;
 
     public static PaymentDTO convertToDTO(Payment payment) {
+
         return PaymentDTO.builder()
                 .id(payment.getId())
                 .amount(payment.getAmount())
@@ -52,7 +53,9 @@ public class PaymentDTO {
                 .build();
     }
 
-    public static List<PaymentDTO> convertToDTO(List<Payment> payments) {
+    public static List<PaymentDTO> convertToDTO(
+            List<Payment> payments) {
+
         return payments.stream()
                 .map(PaymentDTO::convertToDTO)
                 .toList();
