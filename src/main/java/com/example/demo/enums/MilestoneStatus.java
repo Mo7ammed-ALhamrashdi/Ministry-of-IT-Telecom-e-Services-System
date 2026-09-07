@@ -1,4 +1,7 @@
 package com.example.demo.enums;
 
-public class MilestoneStatus {
+public enum MilestoneStatus {
+    PENDING,
+    IN_PROGRESS,
+    COMPLETED
 }
