@@ -14,44 +14,86 @@ import java.util.List;
 @Service
 public class DomainRegistrationService {
 
-    private final DomainRegistrationRepository domainRepository;
+    private final DomainRegistrationRepository domainRegistrationRepository;
     private final CitizenRepository citizenRepository;
 
     public DomainRegistrationService(
-            DomainRegistrationRepository domainRepository,
+            DomainRegistrationRepository domainRegistrationRepository,
             CitizenRepository citizenRepository) {
 
-        this.domainRepository = domainRepository;
-        this.citizenRepository = citizenRepository;
+        this.domainRegistrationRepository =
+                domainRegistrationRepository;
+
+        this.citizenRepository =
+                citizenRepository;
     }
 
     public DomainRegistrationDTO add(
             DomainRegistrationDTO dto) {
 
         Citizen citizen =
-                findCitizenById(dto.getCitizenId());
+                findCitizenById(
+                        dto.getCitizenId()
+                );
 
-        DomainRegistration domain =
+        domainRegistrationRepository
+                .findByDomainNameIgnoreCaseAndIsActiveTrue(
+                        dto.getDomainName()
+                )
+                .ifPresent(domain -> {
+                    throw new IllegalArgumentException(
+                            "Domain name is already registered and active"
+                    );
+                });
+
+        DomainRegistration domainRegistration =
                 new DomainRegistration();
 
-        domain.setDomainName(dto.getDomainName());
-        domain.setRegisteredDate(dto.getRegisteredDate());
-        domain.setExpiryDate(dto.getExpiryDate());
-        domain.setStatus(dto.getStatus());
-        domain.setCitizen(citizen);
-        domain.setIsActive(true);
-        domain.setCreatedDate(LocalDateTime.now());
-        domain.setUpdatedDate(LocalDateTime.now());
+        domainRegistration.setDomainName(
+                dto.getDomainName()
+        );
+
+        domainRegistration.setRegisteredDate(
+                dto.getRegisteredDate()
+        );
+
+        domainRegistration.setExpiryDate(
+                dto.getExpiryDate()
+        );
+
+        domainRegistration.setStatus(
+                dto.getStatus()
+        );
+
+        domainRegistration.setCitizen(
+                citizen
+        );
+
+        domainRegistration.setIsActive(true);
+
+        domainRegistration.setCreatedDate(
+                LocalDateTime.now()
+        );
+
+        domainRegistration.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        DomainRegistration savedDomain =
+                domainRegistrationRepository.save(
+                        domainRegistration
+                );
 
         return DomainRegistrationDTO.convertToDTO(
-                domainRepository.save(domain)
+                savedDomain
         );
     }
 
     public List<DomainRegistrationDTO> getAll() {
 
         List<DomainRegistration> domains =
-                domainRepository.findAll()
+                domainRegistrationRepository
+                        .findAll()
                         .stream()
                         .filter(domain ->
                                 Boolean.TRUE.equals(
@@ -65,10 +107,14 @@ public class DomainRegistrationService {
         );
     }
 
-    public DomainRegistrationDTO getById(Long id) {
+    public DomainRegistrationDTO getById(
+            Long id) {
+
+        DomainRegistration domain =
+                findDomainById(id);
 
         return DomainRegistrationDTO.convertToDTO(
-                findDomainById(id)
+                domain
         );
     }
 
@@ -80,17 +126,82 @@ public class DomainRegistrationService {
                 findDomainById(id);
 
         Citizen citizen =
-                findCitizenById(dto.getCitizenId());
+                findCitizenById(
+                        dto.getCitizenId()
+                );
 
-        domain.setDomainName(dto.getDomainName());
-        domain.setRegisteredDate(dto.getRegisteredDate());
-        domain.setExpiryDate(dto.getExpiryDate());
-        domain.setStatus(dto.getStatus());
-        domain.setCitizen(citizen);
-        domain.setUpdatedDate(LocalDateTime.now());
+        domainRegistrationRepository
+                .findByDomainNameIgnoreCaseAndIsActiveTrue(
+                        dto.getDomainName()
+                )
+                .ifPresent(existingDomain -> {
+
+                    if (!existingDomain
+                            .getId()
+                            .equals(id)) {
+
+                        throw new IllegalArgumentException(
+                                "Domain name is already registered and active"
+                        );
+                    }
+                });
+
+        domain.setDomainName(
+                dto.getDomainName()
+        );
+
+        domain.setRegisteredDate(
+                dto.getRegisteredDate()
+        );
+
+        domain.setExpiryDate(
+                dto.getExpiryDate()
+        );
+
+        domain.setStatus(
+                dto.getStatus()
+        );
+
+        domain.setCitizen(
+                citizen
+        );
+
+        domain.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        DomainRegistration updatedDomain =
+                domainRegistrationRepository.save(
+                        domain
+                );
 
         return DomainRegistrationDTO.convertToDTO(
-                domainRepository.save(domain)
+                updatedDomain
+        );
+    }
+
+    public DomainRegistrationDTO renew(
+            Long id,
+            DomainRegistrationDTO dto) {
+
+        DomainRegistration domain =
+                findDomainById(id);
+
+        domain.setExpiryDate(
+                dto.getExpiryDate()
+        );
+
+        domain.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        DomainRegistration renewedDomain =
+                domainRegistrationRepository.save(
+                        domain
+                );
+
+        return DomainRegistrationDTO.convertToDTO(
+                renewedDomain
         );
     }
 
@@ -100,19 +211,26 @@ public class DomainRegistrationService {
                 findDomainById(id);
 
         domain.setIsActive(false);
-        domain.setUpdatedDate(LocalDateTime.now());
 
-        domainRepository.save(domain);
+        domain.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        domainRegistrationRepository.save(
+                domain
+        );
     }
 
     private DomainRegistration findDomainById(
             Long id) {
 
         DomainRegistration domain =
-                domainRepository.findById(id)
+                domainRegistrationRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Domain registration not found with id: " + id
+                                        "Domain registration not found with id: "
+                                                + id
                                 )
                         );
 
@@ -120,20 +238,24 @@ public class DomainRegistrationService {
                 domain.getIsActive())) {
 
             throw new ResourceNotFoundException(
-                    "Domain registration not found with id: " + id
+                    "Domain registration not found with id: "
+                            + id
             );
         }
 
         return domain;
     }
 
-    private Citizen findCitizenById(Long id) {
+    private Citizen findCitizenById(
+            Long id) {
 
         Citizen citizen =
-                citizenRepository.findById(id)
+                citizenRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Citizen not found with id: " + id
+                                        "Citizen not found with id: "
+                                                + id
                                 )
                         );
 
@@ -141,7 +263,8 @@ public class DomainRegistrationService {
                 citizen.getIsActive())) {
 
             throw new ResourceNotFoundException(
-                    "Citizen not found with id: " + id
+                    "Citizen not found with id: "
+                            + id
             );
         }
 

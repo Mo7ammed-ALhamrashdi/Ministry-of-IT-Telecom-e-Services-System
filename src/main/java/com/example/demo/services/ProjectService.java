@@ -4,12 +4,15 @@ import com.example.demo.dtos.ProjectDTO;
 import com.example.demo.entities.Ministry;
 import com.example.demo.entities.Project;
 import com.example.demo.entities.Vendor;
+import com.example.demo.enums.MilestoneStatus;
+import com.example.demo.enums.ProjectStatus;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.MinistryRepository;
 import com.example.demo.repositories.ProjectRepository;
 import com.example.demo.repositories.VendorRepository;
 import org.springframework.stereotype.Service;
 
+import java.math.BigDecimal;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
@@ -56,9 +59,10 @@ public class ProjectService {
         project.setCreatedDate(LocalDateTime.now());
         project.setUpdatedDate(LocalDateTime.now());
 
-        return ProjectDTO.convertToDTO(
-                projectRepository.save(project)
-        );
+        Project savedProject =
+                projectRepository.save(project);
+
+        return ProjectDTO.convertToDTO(savedProject);
     }
 
     public List<ProjectDTO> getAll() {
@@ -78,9 +82,9 @@ public class ProjectService {
 
     public ProjectDTO getById(Long id) {
 
-        return ProjectDTO.convertToDTO(
-                findProjectById(id)
-        );
+        Project project = findProjectById(id);
+
+        return ProjectDTO.convertToDTO(project);
     }
 
     public ProjectDTO update(
@@ -90,14 +94,14 @@ public class ProjectService {
         Project project =
                 findProjectById(id);
 
+        Ministry ministry =
+                findMinistryById(dto.getMinistryId());
+
         project.setTitle(dto.getTitle());
         project.setBudget(dto.getBudget());
         project.setStartDate(dto.getStartDate());
         project.setStatus(dto.getStatus());
-
-        project.setMinistry(
-                findMinistryById(dto.getMinistryId())
-        );
+        project.setMinistry(ministry);
 
         project.getVendors().clear();
 
@@ -111,8 +115,118 @@ public class ProjectService {
 
         project.setUpdatedDate(LocalDateTime.now());
 
+        Project updatedProject =
+                projectRepository.save(project);
+
+        return ProjectDTO.convertToDTO(updatedProject);
+    }
+
+    public List<ProjectDTO> getProjectsAboveBudget(
+            BigDecimal budget) {
+
+        if (budget == null ||
+                budget.compareTo(BigDecimal.ZERO) < 0) {
+
+            throw new IllegalArgumentException(
+                    "Budget cannot be negative"
+            );
+        }
+
+        List<Project> projects =
+                projectRepository
+                        .findProjectsAboveBudget(budget);
+
+        return ProjectDTO.convertToDTO(projects);
+    }
+
+    public Double getMilestoneProgress(
+            Long projectId) {
+
+        Project project =
+                findProjectById(projectId);
+
+        List<com.example.demo.entities.Milestone>
+                activeMilestones =
+                project.getMilestones()
+                        .stream()
+                        .filter(milestone ->
+                                Boolean.TRUE.equals(
+                                        milestone.getIsActive()
+                                )
+                        )
+                        .toList();
+
+        if (activeMilestones.isEmpty()) {
+            return 0.0;
+        }
+
+        long completed =
+                activeMilestones.stream()
+                        .filter(milestone ->
+                                MilestoneStatus.COMPLETED
+                                        .equals(
+                                                milestone.getStatus()
+                                        )
+                        )
+                        .count();
+
+        return (completed * 100.0)
+                / activeMilestones.size();
+    }
+
+    public ProjectDTO completeProject(
+            Long projectId) {
+
+        Project project =
+                findProjectById(projectId);
+
+        List<com.example.demo.entities.Milestone>
+                activeMilestones =
+                project.getMilestones()
+                        .stream()
+                        .filter(milestone ->
+                                Boolean.TRUE.equals(
+                                        milestone.getIsActive()
+                                )
+                        )
+                        .toList();
+
+        if (activeMilestones.isEmpty()) {
+
+            throw new IllegalArgumentException(
+                    "Project has no active milestones"
+            );
+        }
+
+        boolean allCompleted =
+                activeMilestones.stream()
+                        .allMatch(milestone ->
+                                MilestoneStatus.COMPLETED
+                                        .equals(
+                                                milestone.getStatus()
+                                        )
+                        );
+
+        if (!allCompleted) {
+
+            throw new IllegalArgumentException(
+                    "All milestones must be completed before completing the project"
+            );
+        }
+
+        project.setStatus(
+                ProjectStatus.COMPLETED
+        );
+
+        project.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        Project savedProject =
+                projectRepository.save(project);
+
         return ProjectDTO.convertToDTO(
-                projectRepository.save(project)
+                savedProject
         );
     }
 
@@ -122,18 +236,24 @@ public class ProjectService {
                 findProjectById(id);
 
         project.setIsActive(false);
-        project.setUpdatedDate(LocalDateTime.now());
+
+        project.setUpdatedDate(
+                LocalDateTime.now()
+        );
 
         projectRepository.save(project);
     }
 
-    private Project findProjectById(Long id) {
+    private Project findProjectById(
+            Long id) {
 
         Project project =
-                projectRepository.findById(id)
+                projectRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Project not found with id: " + id
+                                        "Project not found with id: "
+                                                + id
                                 )
                         );
 
@@ -141,20 +261,24 @@ public class ProjectService {
                 project.getIsActive())) {
 
             throw new ResourceNotFoundException(
-                    "Project not found with id: " + id
+                    "Project not found with id: "
+                            + id
             );
         }
 
         return project;
     }
 
-    private Ministry findMinistryById(Long id) {
+    private Ministry findMinistryById(
+            Long id) {
 
         Ministry ministry =
-                ministryRepository.findById(id)
+                ministryRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Ministry not found with id: " + id
+                                        "Ministry not found with id: "
+                                                + id
                                 )
                         );
 
@@ -162,7 +286,8 @@ public class ProjectService {
                 ministry.getIsActive())) {
 
             throw new ResourceNotFoundException(
-                    "Ministry not found with id: " + id
+                    "Ministry not found with id: "
+                            + id
             );
         }
 
@@ -170,18 +295,20 @@ public class ProjectService {
     }
 
     private List<Vendor> findVendors(
-            List<Long> ids) {
+            List<Long> vendorIds) {
 
         List<Vendor> vendors =
                 new ArrayList<>();
 
-        for (Long id : ids) {
+        for (Long vendorId : vendorIds) {
 
             Vendor vendor =
-                    vendorRepository.findById(id)
+                    vendorRepository
+                            .findById(vendorId)
                             .orElseThrow(() ->
                                     new ResourceNotFoundException(
-                                            "Vendor not found with id: " + id
+                                            "Vendor not found with id: "
+                                                    + vendorId
                                     )
                             );
 
@@ -189,7 +316,8 @@ public class ProjectService {
                     vendor.getIsActive())) {
 
                 throw new ResourceNotFoundException(
-                        "Vendor not found with id: " + id
+                        "Vendor not found with id: "
+                                + vendorId
                 );
             }
 

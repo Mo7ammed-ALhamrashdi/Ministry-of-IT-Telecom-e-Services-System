@@ -5,6 +5,7 @@ import com.example.demo.entities.Citizen;
 import com.example.demo.entities.Complaint;
 import com.example.demo.entities.Officer;
 import com.example.demo.entities.Operator;
+import com.example.demo.enums.ComplaintStatus;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.CitizenRepository;
 import com.example.demo.repositories.ComplaintRepository;
@@ -35,43 +36,91 @@ public class ComplaintService {
         this.officerRepository = officerRepository;
     }
 
-    public ComplaintDTO add(ComplaintDTO dto) {
+
+    // ADD COMPLAINT
+    public ComplaintDTO add(
+            ComplaintDTO dto) {
 
         Citizen citizen =
-                findCitizenById(dto.getCitizenId());
+                findCitizenById(
+                        dto.getCitizenId()
+                );
 
         Operator operator =
-                findOperatorById(dto.getOperatorId());
+                findOperatorById(
+                        dto.getOperatorId()
+                );
 
         Complaint complaint =
                 new Complaint();
 
-        complaint.setSubject(dto.getSubject());
-        complaint.setDescription(dto.getDescription());
-        complaint.setStatus(dto.getStatus());
-        complaint.setFiledDate(dto.getFiledDate());
-        complaint.setCitizen(citizen);
-        complaint.setOperator(operator);
+        complaint.setSubject(
+                dto.getSubject()
+        );
+
+        complaint.setDescription(
+                dto.getDescription()
+        );
+
+        complaint.setStatus(
+                dto.getStatus()
+        );
+
+        complaint.setFiledDate(
+                dto.getFiledDate()
+        );
+
+        complaint.setCitizen(
+                citizen
+        );
+
+        complaint.setOperator(
+                operator
+        );
+
 
         if (dto.getOfficerId() != null) {
+
+            Officer officer =
+                    findOfficerById(
+                            dto.getOfficerId()
+                    );
+
             complaint.setOfficer(
-                    findOfficerById(dto.getOfficerId())
+                    officer
             );
         }
 
+
         complaint.setIsActive(true);
-        complaint.setCreatedDate(LocalDateTime.now());
-        complaint.setUpdatedDate(LocalDateTime.now());
+
+        complaint.setCreatedDate(
+                LocalDateTime.now()
+        );
+
+        complaint.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+
+        Complaint savedComplaint =
+                complaintRepository.save(
+                        complaint
+                );
+
 
         return ComplaintDTO.convertToDTO(
-                complaintRepository.save(complaint)
+                savedComplaint
         );
     }
 
+
+    // GET ALL
     public List<ComplaintDTO> getAll() {
 
         List<Complaint> complaints =
-                complaintRepository.findAll()
+                complaintRepository
+                        .findAll()
                         .stream()
                         .filter(complaint ->
                                 Boolean.TRUE.equals(
@@ -80,18 +129,28 @@ public class ComplaintService {
                         )
                         .toList();
 
+
         return ComplaintDTO.convertToDTO(
                 complaints
         );
     }
 
-    public ComplaintDTO getById(Long id) {
+
+    // GET BY ID
+    public ComplaintDTO getById(
+            Long id) {
+
+        Complaint complaint =
+                findComplaintById(id);
+
 
         return ComplaintDTO.convertToDTO(
-                findComplaintById(id)
+                complaint
         );
     }
 
+
+    // UPDATE
     public ComplaintDTO update(
             Long id,
             ComplaintDTO dto) {
@@ -99,119 +158,322 @@ public class ComplaintService {
         Complaint complaint =
                 findComplaintById(id);
 
-        complaint.setSubject(dto.getSubject());
-        complaint.setDescription(dto.getDescription());
-        complaint.setStatus(dto.getStatus());
-        complaint.setFiledDate(dto.getFiledDate());
+
+        Citizen citizen =
+                findCitizenById(
+                        dto.getCitizenId()
+                );
+
+
+        Operator operator =
+                findOperatorById(
+                        dto.getOperatorId()
+                );
+
+
+        complaint.setSubject(
+                dto.getSubject()
+        );
+
+        complaint.setDescription(
+                dto.getDescription()
+        );
+
+        complaint.setStatus(
+                dto.getStatus()
+        );
+
+        complaint.setFiledDate(
+                dto.getFiledDate()
+        );
 
         complaint.setCitizen(
-                findCitizenById(dto.getCitizenId())
+                citizen
         );
 
         complaint.setOperator(
-                findOperatorById(dto.getOperatorId())
+                operator
         );
 
+
         if (dto.getOfficerId() != null) {
+
+            Officer officer =
+                    findOfficerById(
+                            dto.getOfficerId()
+                    );
+
             complaint.setOfficer(
-                    findOfficerById(dto.getOfficerId())
+                    officer
             );
+
         } else {
+
             complaint.setOfficer(null);
         }
 
-        complaint.setUpdatedDate(LocalDateTime.now());
+
+        complaint.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+
+        Complaint updatedComplaint =
+                complaintRepository.save(
+                        complaint
+                );
+
 
         return ComplaintDTO.convertToDTO(
-                complaintRepository.save(complaint)
+                updatedComplaint
         );
     }
 
-    public void delete(Long id) {
+
+    // ASSIGN OFFICER
+    public ComplaintDTO assignOfficer(
+            Long complaintId,
+            Long officerId) {
+
+        Complaint complaint =
+                findComplaintById(
+                        complaintId
+                );
+
+
+        Officer officer =
+                findOfficerById(
+                        officerId
+                );
+
+
+        complaint.setOfficer(
+                officer
+        );
+
+
+        complaint.setStatus(
+                ComplaintStatus.IN_PROGRESS
+        );
+
+
+        complaint.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+
+        Complaint updatedComplaint =
+                complaintRepository.save(
+                        complaint
+                );
+
+
+        return ComplaintDTO.convertToDTO(
+                updatedComplaint
+        );
+    }
+
+
+    // RESOLVE COMPLAINT
+    public ComplaintDTO resolve(
+            Long complaintId) {
+
+        Complaint complaint =
+                findComplaintById(
+                        complaintId
+                );
+
+
+        if (ComplaintStatus.RESOLVED
+                .equals(
+                        complaint.getStatus()
+                )) {
+
+            throw new IllegalArgumentException(
+                    "Complaint is already resolved"
+            );
+        }
+
+
+        complaint.setStatus(
+                ComplaintStatus.RESOLVED
+        );
+
+
+        complaint.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+
+        Complaint resolvedComplaint =
+                complaintRepository.save(
+                        complaint
+                );
+
+
+        return ComplaintDTO.convertToDTO(
+                resolvedComplaint
+        );
+    }
+
+
+    // GET OPEN COMPLAINTS BY OPERATOR
+    public List<ComplaintDTO>
+    getOpenComplaintsByOperator(
+            Long operatorId) {
+
+        findOperatorById(
+                operatorId
+        );
+
+
+        List<Complaint> complaints =
+                complaintRepository
+                        .findOpenComplaintsByOperator(
+                                operatorId,
+                                ComplaintStatus.RESOLVED
+                        );
+
+
+        return ComplaintDTO.convertToDTO(
+                complaints
+        );
+    }
+
+
+    // SOFT DELETE
+    public void delete(
+            Long id) {
 
         Complaint complaint =
                 findComplaintById(id);
 
-        complaint.setIsActive(false);
-        complaint.setUpdatedDate(LocalDateTime.now());
 
-        complaintRepository.save(complaint);
+        complaint.setIsActive(false);
+
+
+        complaint.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+
+        complaintRepository.save(
+                complaint
+        );
     }
 
-    private Complaint findComplaintById(Long id) {
+
+    // FIND COMPLAINT
+    private Complaint findComplaintById(
+            Long id) {
 
         Complaint complaint =
-                complaintRepository.findById(id)
+                complaintRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Complaint not found with id: " + id
+                                        "Complaint not found with id: "
+                                                + id
                                 )
                         );
+
 
         if (!Boolean.TRUE.equals(
                 complaint.getIsActive())) {
 
             throw new ResourceNotFoundException(
-                    "Complaint not found with id: " + id
+                    "Complaint not found with id: "
+                            + id
             );
         }
+
 
         return complaint;
     }
 
-    private Citizen findCitizenById(Long id) {
+
+    // FIND CITIZEN
+    private Citizen findCitizenById(
+            Long id) {
 
         Citizen citizen =
-                citizenRepository.findById(id)
+                citizenRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Citizen not found with id: " + id
+                                        "Citizen not found with id: "
+                                                + id
                                 )
                         );
 
-        if (!Boolean.TRUE.equals(citizen.getIsActive())) {
+
+        if (!Boolean.TRUE.equals(
+                citizen.getIsActive())) {
+
             throw new ResourceNotFoundException(
-                    "Citizen not found with id: " + id
+                    "Citizen not found with id: "
+                            + id
             );
         }
+
 
         return citizen;
     }
 
-    private Operator findOperatorById(Long id) {
+
+    // FIND OPERATOR
+    private Operator findOperatorById(
+            Long id) {
 
         Operator operator =
-                operatorRepository.findById(id)
+                operatorRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Operator not found with id: " + id
+                                        "Operator not found with id: "
+                                                + id
                                 )
                         );
 
-        if (!Boolean.TRUE.equals(operator.getIsActive())) {
+
+        if (!Boolean.TRUE.equals(
+                operator.getIsActive())) {
+
             throw new ResourceNotFoundException(
-                    "Operator not found with id: " + id
+                    "Operator not found with id: "
+                            + id
             );
         }
+
 
         return operator;
     }
 
-    private Officer findOfficerById(Long id) {
+
+    // FIND OFFICER
+    private Officer findOfficerById(
+            Long id) {
 
         Officer officer =
-                officerRepository.findById(id)
+                officerRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Officer not found with id: " + id
+                                        "Officer not found with id: "
+                                                + id
                                 )
                         );
 
-        if (!Boolean.TRUE.equals(officer.getIsActive())) {
+
+        if (!Boolean.TRUE.equals(
+                officer.getIsActive())) {
+
             throw new ResourceNotFoundException(
-                    "Officer not found with id: " + id
+                    "Officer not found with id: "
+                            + id
             );
         }
+
 
         return officer;
     }

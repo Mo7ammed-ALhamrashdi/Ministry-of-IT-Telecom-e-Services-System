@@ -3,17 +3,23 @@ package com.example.demo.services;
 import com.example.demo.dtos.ApplicationDTO;
 import com.example.demo.entities.Application;
 import com.example.demo.entities.Citizen;
+import com.example.demo.entities.Document;
 import com.example.demo.entities.MinistryService;
 import com.example.demo.entities.Officer;
+import com.example.demo.enums.ApplicationStatus;
+import com.example.demo.enums.PaymentStatus;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.ApplicationRepository;
 import com.example.demo.repositories.CitizenRepository;
+import com.example.demo.repositories.DocumentRepository;
 import com.example.demo.repositories.MinistryServiceRepository;
 import com.example.demo.repositories.OfficerRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.UUID;
 
 @Service
 public class ApplicationService {
@@ -22,26 +28,43 @@ public class ApplicationService {
     private final CitizenRepository citizenRepository;
     private final MinistryServiceRepository ministryServiceRepository;
     private final OfficerRepository officerRepository;
+    private final DocumentRepository documentRepository;
 
     public ApplicationService(
             ApplicationRepository applicationRepository,
             CitizenRepository citizenRepository,
             MinistryServiceRepository ministryServiceRepository,
-            OfficerRepository officerRepository) {
+            OfficerRepository officerRepository,
+            DocumentRepository documentRepository) {
 
-        this.applicationRepository = applicationRepository;
-        this.citizenRepository = citizenRepository;
-        this.ministryServiceRepository = ministryServiceRepository;
-        this.officerRepository = officerRepository;
+        this.applicationRepository =
+                applicationRepository;
+
+        this.citizenRepository =
+                citizenRepository;
+
+        this.ministryServiceRepository =
+                ministryServiceRepository;
+
+        this.officerRepository =
+                officerRepository;
+
+        this.documentRepository =
+                documentRepository;
     }
 
-    public ApplicationDTO add(ApplicationDTO dto) {
+    public ApplicationDTO add(
+            ApplicationDTO dto) {
 
         Citizen citizen =
-                findCitizenById(dto.getCitizenId());
+                findCitizenById(
+                        dto.getCitizenId()
+                );
 
         MinistryService ministryService =
-                findMinistryServiceById(dto.getServiceId());
+                findMinistryServiceById(
+                        dto.getServiceId()
+                );
 
         Application application =
                 new Application();
@@ -51,11 +74,11 @@ public class ApplicationService {
         );
 
         application.setStatus(
-                dto.getStatus()
+                ApplicationStatus.PENDING
         );
 
         application.setReferenceNumber(
-                dto.getReferenceNumber()
+                generateReferenceNumber()
         );
 
         application.setCitizen(
@@ -66,22 +89,21 @@ public class ApplicationService {
                 ministryService
         );
 
-        if (dto.getOfficerId() != null) {
+        Officer officer =
+                assignOfficer(
+                        ministryService
+                );
 
-            Officer officer =
-                    findOfficerById(
-                            dto.getOfficerId()
-                    );
-
-            application.setOfficer(
-                    officer
-            );
-        }
+        application.setOfficer(
+                officer
+        );
 
         application.setIsActive(true);
+
         application.setCreatedDate(
                 LocalDateTime.now()
         );
+
         application.setUpdatedDate(
                 LocalDateTime.now()
         );
@@ -99,7 +121,8 @@ public class ApplicationService {
     public List<ApplicationDTO> getAll() {
 
         List<Application> applications =
-                applicationRepository.findAll()
+                applicationRepository
+                        .findAll()
                         .stream()
                         .filter(application ->
                                 Boolean.TRUE.equals(
@@ -113,13 +136,11 @@ public class ApplicationService {
         );
     }
 
-    public ApplicationDTO getById(Long id) {
-
-        Application application =
-                findApplicationById(id);
+    public ApplicationDTO getById(
+            Long id) {
 
         return ApplicationDTO.convertToDTO(
-                application
+                findApplicationById(id)
         );
     }
 
@@ -144,14 +165,6 @@ public class ApplicationService {
                 dto.getApplicationDate()
         );
 
-        application.setStatus(
-                dto.getStatus()
-        );
-
-        application.setReferenceNumber(
-                dto.getReferenceNumber()
-        );
-
         application.setCitizen(
                 citizen
         );
@@ -162,19 +175,10 @@ public class ApplicationService {
 
         if (dto.getOfficerId() != null) {
 
-            Officer officer =
+            application.setOfficer(
                     findOfficerById(
                             dto.getOfficerId()
-                    );
-
-            application.setOfficer(
-                    officer
-            );
-
-        } else {
-
-            application.setOfficer(
-                    null
+                    )
             );
         }
 
@@ -192,6 +196,104 @@ public class ApplicationService {
         );
     }
 
+    public List<ApplicationDTO>
+    getByStatus(
+            ApplicationStatus status) {
+
+        List<Application> applications =
+                applicationRepository
+                        .findApplicationsByStatus(
+                                status
+                        );
+
+        return ApplicationDTO.convertToDTO(
+                applications
+        );
+    }
+
+    public List<ApplicationDTO>
+    getCitizenHistory(
+            Long citizenId) {
+
+        findCitizenById(citizenId);
+
+        List<Application> applications =
+                applicationRepository
+                        .findCitizenApplicationHistory(
+                                citizenId
+                        );
+
+        return ApplicationDTO.convertToDTO(
+                applications
+        );
+    }
+
+    public ApplicationDTO approve(
+            Long id) {
+
+        Application application =
+                findApplicationById(id);
+
+        verifyApplicationPaid(
+                application
+        );
+
+        application.setStatus(
+                ApplicationStatus.APPROVED
+        );
+
+        application.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        Application savedApplication =
+                applicationRepository.save(
+                        application
+                );
+
+        createDecisionDocument(
+                savedApplication,
+                "APPROVED"
+        );
+
+        return ApplicationDTO.convertToDTO(
+                savedApplication
+        );
+    }
+
+    public ApplicationDTO reject(
+            Long id) {
+
+        Application application =
+                findApplicationById(id);
+
+        verifyApplicationPaid(
+                application
+        );
+
+        application.setStatus(
+                ApplicationStatus.REJECTED
+        );
+
+        application.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        Application savedApplication =
+                applicationRepository.save(
+                        application
+                );
+
+        createDecisionDocument(
+                savedApplication,
+                "REJECTED"
+        );
+
+        return ApplicationDTO.convertToDTO(
+                savedApplication
+        );
+    }
+
     public void delete(Long id) {
 
         Application application =
@@ -205,6 +307,117 @@ public class ApplicationService {
 
         applicationRepository.save(
                 application
+        );
+    }
+
+    private String generateReferenceNumber() {
+
+        return "APP-"
+                + UUID.randomUUID()
+                .toString()
+                .substring(0, 8)
+                .toUpperCase();
+    }
+
+    private Officer assignOfficer(
+            MinistryService ministryService) {
+
+        if (ministryService.getDepartment()
+                == null) {
+
+            throw new IllegalArgumentException(
+                    "Service does not belong to a department"
+            );
+        }
+
+        List<Officer> officers =
+                officerRepository
+                        .findActiveOfficersByDepartment(
+                                ministryService
+                                        .getDepartment()
+                                        .getId()
+                        );
+
+        if (officers.isEmpty()) {
+
+            throw new IllegalArgumentException(
+                    "No active officer available for this service"
+            );
+        }
+
+        return officers.get(0);
+    }
+
+    private void verifyApplicationPaid(
+            Application application) {
+
+        if (application.getPayment() == null) {
+
+            throw new IllegalArgumentException(
+                    "Application must be paid before processing"
+            );
+        }
+
+        if (!Boolean.TRUE.equals(
+                application.getPayment()
+                        .getIsActive())) {
+
+            throw new IllegalArgumentException(
+                    "Application payment is inactive"
+            );
+        }
+
+        if (!PaymentStatus.PAID.equals(
+                application
+                        .getPayment()
+                        .getStatus())) {
+
+            throw new IllegalArgumentException(
+                    "Application must be paid before processing"
+            );
+        }
+    }
+
+    private void createDecisionDocument(
+            Application application,
+            String decision) {
+
+        Document document =
+                new Document();
+
+        document.setTitle(
+                "Application Decision - "
+                        + application
+                        .getReferenceNumber()
+        );
+
+        document.setType(
+                "DECISION_"
+                        + decision
+        );
+
+        document.setUploadDate(
+                LocalDate.now()
+        );
+
+        document.setApplication(
+                application
+        );
+
+        document.setProject(null);
+
+        document.setIsActive(true);
+
+        document.setCreatedDate(
+                LocalDateTime.now()
+        );
+
+        document.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        documentRepository.save(
+                document
         );
     }
 
@@ -258,7 +471,8 @@ public class ApplicationService {
         return citizen;
     }
 
-    private MinistryService findMinistryServiceById(
+    private MinistryService
+    findMinistryServiceById(
             Long id) {
 
         MinistryService ministryService =
@@ -272,7 +486,8 @@ public class ApplicationService {
                         );
 
         if (!Boolean.TRUE.equals(
-                ministryService.getIsActive())) {
+                ministryService
+                        .getIsActive())) {
 
             throw new ResourceNotFoundException(
                     "Service not found with id: "

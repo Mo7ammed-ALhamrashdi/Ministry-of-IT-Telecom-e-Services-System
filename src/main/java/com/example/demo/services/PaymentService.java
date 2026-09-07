@@ -3,13 +3,17 @@ package com.example.demo.services;
 import com.example.demo.dtos.PaymentDTO;
 import com.example.demo.entities.Application;
 import com.example.demo.entities.Payment;
+import com.example.demo.enums.ApplicationStatus;
+import com.example.demo.enums.PaymentStatus;
 import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.ApplicationRepository;
 import com.example.demo.repositories.PaymentRepository;
 import org.springframework.stereotype.Service;
 
+import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.util.List;
+import java.util.Optional;
 
 @Service
 public class PaymentService {
@@ -36,6 +40,29 @@ public class PaymentService {
                         dto.getApplicationId()
                 );
 
+        Optional<Payment> existingPayment =
+                paymentRepository
+                        .findByApplicationIdAndIsActiveTrue(
+                                application.getId()
+                        );
+
+        if (existingPayment.isPresent()) {
+
+            if (PaymentStatus.PAID.equals(
+                    existingPayment
+                            .get()
+                            .getStatus())) {
+
+                throw new IllegalArgumentException(
+                        "Application has already been paid"
+                );
+            }
+
+            throw new IllegalArgumentException(
+                    "A payment already exists for this application"
+            );
+        }
+
         Payment payment =
                 new Payment();
 
@@ -51,9 +78,33 @@ public class PaymentService {
                 dto.getStatus()
         );
 
-        payment.setPaidDate(
-                dto.getPaidDate()
-        );
+        if (PaymentStatus.PAID.equals(
+                dto.getStatus())) {
+
+            payment.setPaidDate(
+                    dto.getPaidDate() != null
+                            ? dto.getPaidDate()
+                            : LocalDate.now()
+            );
+
+            application.setStatus(
+                    ApplicationStatus.PROCESSING
+            );
+
+            application.setUpdatedDate(
+                    LocalDateTime.now()
+            );
+
+            applicationRepository.save(
+                    application
+            );
+
+        } else {
+
+            payment.setPaidDate(
+                    dto.getPaidDate()
+            );
+        }
 
         payment.setApplication(
                 application
@@ -120,6 +171,14 @@ public class PaymentService {
                         dto.getApplicationId()
                 );
 
+        if (PaymentStatus.PAID.equals(
+                payment.getStatus())) {
+
+            throw new IllegalArgumentException(
+                    "Paid payment cannot be changed"
+            );
+        }
+
         payment.setAmount(
                 dto.getAmount()
         );
@@ -132,13 +191,37 @@ public class PaymentService {
                 dto.getStatus()
         );
 
-        payment.setPaidDate(
-                dto.getPaidDate()
-        );
-
         payment.setApplication(
                 application
         );
+
+        if (PaymentStatus.PAID.equals(
+                dto.getStatus())) {
+
+            payment.setPaidDate(
+                    dto.getPaidDate() != null
+                            ? dto.getPaidDate()
+                            : LocalDate.now()
+            );
+
+            application.setStatus(
+                    ApplicationStatus.PROCESSING
+            );
+
+            application.setUpdatedDate(
+                    LocalDateTime.now()
+            );
+
+            applicationRepository.save(
+                    application
+            );
+
+        } else {
+
+            payment.setPaidDate(
+                    dto.getPaidDate()
+            );
+        }
 
         payment.setUpdatedDate(
                 LocalDateTime.now()
@@ -154,7 +237,8 @@ public class PaymentService {
         );
     }
 
-    public void delete(Long id) {
+    public void delete(
+            Long id) {
 
         Payment payment =
                 findPaymentById(id);

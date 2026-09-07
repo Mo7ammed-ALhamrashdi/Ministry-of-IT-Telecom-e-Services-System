@@ -21,36 +21,65 @@ public class MilestoneService {
             MilestoneRepository milestoneRepository,
             ProjectRepository projectRepository) {
 
-        this.milestoneRepository = milestoneRepository;
-        this.projectRepository = projectRepository;
+        this.milestoneRepository =
+                milestoneRepository;
+
+        this.projectRepository =
+                projectRepository;
     }
 
     public MilestoneDTO add(
             MilestoneDTO dto) {
 
         Project project =
-                findProjectById(dto.getProjectId());
+                findProjectById(
+                        dto.getProjectId()
+                );
 
         Milestone milestone =
                 new Milestone();
 
-        milestone.setTitle(dto.getTitle());
-        milestone.setDueDate(dto.getDueDate());
-        milestone.setStatus(dto.getStatus());
-        milestone.setProject(project);
+        milestone.setTitle(
+                dto.getTitle()
+        );
+
+        milestone.setDueDate(
+                dto.getDueDate()
+        );
+
+        milestone.setStatus(
+                dto.getStatus()
+        );
+
+        milestone.setProject(
+                project
+        );
+
         milestone.setIsActive(true);
-        milestone.setCreatedDate(LocalDateTime.now());
-        milestone.setUpdatedDate(LocalDateTime.now());
+
+        milestone.setCreatedDate(
+                LocalDateTime.now()
+        );
+
+        milestone.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        Milestone savedMilestone =
+                milestoneRepository.save(
+                        milestone
+                );
 
         return MilestoneDTO.convertToDTO(
-                milestoneRepository.save(milestone)
+                savedMilestone
         );
     }
 
     public List<MilestoneDTO> getAll() {
 
         List<Milestone> milestones =
-                milestoneRepository.findAll()
+                milestoneRepository
+                        .findAll()
                         .stream()
                         .filter(milestone ->
                                 Boolean.TRUE.equals(
@@ -64,7 +93,8 @@ public class MilestoneService {
         );
     }
 
-    public MilestoneDTO getById(Long id) {
+    public MilestoneDTO getById(
+            Long id) {
 
         return MilestoneDTO.convertToDTO(
                 findMilestoneById(id)
@@ -78,39 +108,68 @@ public class MilestoneService {
         Milestone milestone =
                 findMilestoneById(id);
 
-        milestone.setTitle(dto.getTitle());
-        milestone.setDueDate(dto.getDueDate());
-        milestone.setStatus(dto.getStatus());
+        Project project =
+                findProjectById(
+                        dto.getProjectId()
+                );
 
-        milestone.setProject(
-                findProjectById(dto.getProjectId())
+        milestone.setTitle(
+                dto.getTitle()
         );
 
-        milestone.setUpdatedDate(LocalDateTime.now());
+        milestone.setDueDate(
+                dto.getDueDate()
+        );
+
+        milestone.setStatus(
+                dto.getStatus()
+        );
+
+        milestone.setProject(
+                project
+        );
+
+        milestone.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        Milestone updatedMilestone =
+                milestoneRepository.save(
+                        milestone
+                );
 
         return MilestoneDTO.convertToDTO(
-                milestoneRepository.save(milestone)
+                updatedMilestone
         );
     }
 
-    public void delete(Long id) {
+    public void delete(
+            Long id) {
 
         Milestone milestone =
                 findMilestoneById(id);
 
         milestone.setIsActive(false);
-        milestone.setUpdatedDate(LocalDateTime.now());
 
-        milestoneRepository.save(milestone);
+        milestone.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        milestoneRepository.save(
+                milestone
+        );
     }
 
-    private Milestone findMilestoneById(Long id) {
+    private Milestone findMilestoneById(
+            Long id) {
 
         Milestone milestone =
-                milestoneRepository.findById(id)
+                milestoneRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Milestone not found with id: " + id
+                                        "Milestone not found with id: "
+                                                + id
                                 )
                         );
 
@@ -118,26 +177,33 @@ public class MilestoneService {
                 milestone.getIsActive())) {
 
             throw new ResourceNotFoundException(
-                    "Milestone not found with id: " + id
+                    "Milestone not found with id: "
+                            + id
             );
         }
 
         return milestone;
     }
 
-    private Project findProjectById(Long id) {
+    private Project findProjectById(
+            Long id) {
 
         Project project =
-                projectRepository.findById(id)
+                projectRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Project not found with id: " + id
+                                        "Project not found with id: "
+                                                + id
                                 )
                         );
 
-        if (!Boolean.TRUE.equals(project.getIsActive())) {
+        if (!Boolean.TRUE.equals(
+                project.getIsActive())) {
+
             throw new ResourceNotFoundException(
-                    "Project not found with id: " + id
+                    "Project not found with id: "
+                            + id
             );
         }
 

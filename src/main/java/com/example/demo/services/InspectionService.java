@@ -25,13 +25,28 @@ public class InspectionService {
             OperatorRepository operatorRepository,
             OfficerRepository officerRepository) {
 
-        this.inspectionRepository = inspectionRepository;
-        this.operatorRepository = operatorRepository;
-        this.officerRepository = officerRepository;
+        this.inspectionRepository =
+                inspectionRepository;
+
+        this.operatorRepository =
+                operatorRepository;
+
+        this.officerRepository =
+                officerRepository;
     }
 
     public InspectionDTO add(
             InspectionDTO dto) {
+
+        Operator operator =
+                findOperatorById(
+                        dto.getOperatorId()
+                );
+
+        Officer officer =
+                findOfficerById(
+                        dto.getOfficerId()
+                );
 
         Inspection inspection =
                 new Inspection();
@@ -40,30 +55,47 @@ public class InspectionService {
                 dto.getInspectionDate()
         );
 
-        inspection.setResult(dto.getResult());
-        inspection.setNotes(dto.getNotes());
+        inspection.setResult(
+                dto.getResult()
+        );
+
+        inspection.setNotes(
+                dto.getNotes()
+        );
 
         inspection.setOperator(
-                findOperatorById(dto.getOperatorId())
+                operator
         );
 
         inspection.setOfficer(
-                findOfficerById(dto.getOfficerId())
+                officer
         );
 
         inspection.setIsActive(true);
-        inspection.setCreatedDate(LocalDateTime.now());
-        inspection.setUpdatedDate(LocalDateTime.now());
+
+        inspection.setCreatedDate(
+                LocalDateTime.now()
+        );
+
+        inspection.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        Inspection savedInspection =
+                inspectionRepository.save(
+                        inspection
+                );
 
         return InspectionDTO.convertToDTO(
-                inspectionRepository.save(inspection)
+                savedInspection
         );
     }
 
     public List<InspectionDTO> getAll() {
 
         List<Inspection> inspections =
-                inspectionRepository.findAll()
+                inspectionRepository
+                        .findAll()
                         .stream()
                         .filter(inspection ->
                                 Boolean.TRUE.equals(
@@ -77,7 +109,8 @@ public class InspectionService {
         );
     }
 
-    public InspectionDTO getById(Long id) {
+    public InspectionDTO getById(
+            Long id) {
 
         return InspectionDTO.convertToDTO(
                 findInspectionById(id)
@@ -91,46 +124,77 @@ public class InspectionService {
         Inspection inspection =
                 findInspectionById(id);
 
+        Operator operator =
+                findOperatorById(
+                        dto.getOperatorId()
+                );
+
+        Officer officer =
+                findOfficerById(
+                        dto.getOfficerId()
+                );
+
         inspection.setInspectionDate(
                 dto.getInspectionDate()
         );
 
-        inspection.setResult(dto.getResult());
-        inspection.setNotes(dto.getNotes());
+        inspection.setResult(
+                dto.getResult()
+        );
+
+        inspection.setNotes(
+                dto.getNotes()
+        );
 
         inspection.setOperator(
-                findOperatorById(dto.getOperatorId())
+                operator
         );
 
         inspection.setOfficer(
-                findOfficerById(dto.getOfficerId())
+                officer
         );
 
-        inspection.setUpdatedDate(LocalDateTime.now());
+        inspection.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        Inspection updatedInspection =
+                inspectionRepository.save(
+                        inspection
+                );
 
         return InspectionDTO.convertToDTO(
-                inspectionRepository.save(inspection)
+                updatedInspection
         );
     }
 
-    public void delete(Long id) {
+    public void delete(
+            Long id) {
 
         Inspection inspection =
                 findInspectionById(id);
 
         inspection.setIsActive(false);
-        inspection.setUpdatedDate(LocalDateTime.now());
 
-        inspectionRepository.save(inspection);
+        inspection.setUpdatedDate(
+                LocalDateTime.now()
+        );
+
+        inspectionRepository.save(
+                inspection
+        );
     }
 
-    private Inspection findInspectionById(Long id) {
+    private Inspection findInspectionById(
+            Long id) {
 
         Inspection inspection =
-                inspectionRepository.findById(id)
+                inspectionRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Inspection not found with id: " + id
+                                        "Inspection not found with id: "
+                                                + id
                                 )
                         );
 
@@ -138,45 +202,58 @@ public class InspectionService {
                 inspection.getIsActive())) {
 
             throw new ResourceNotFoundException(
-                    "Inspection not found with id: " + id
+                    "Inspection not found with id: "
+                            + id
             );
         }
 
         return inspection;
     }
 
-    private Operator findOperatorById(Long id) {
+    private Operator findOperatorById(
+            Long id) {
 
         Operator operator =
-                operatorRepository.findById(id)
+                operatorRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Operator not found with id: " + id
+                                        "Operator not found with id: "
+                                                + id
                                 )
                         );
 
-        if (!Boolean.TRUE.equals(operator.getIsActive())) {
+        if (!Boolean.TRUE.equals(
+                operator.getIsActive())) {
+
             throw new ResourceNotFoundException(
-                    "Operator not found with id: " + id
+                    "Operator not found with id: "
+                            + id
             );
         }
 
         return operator;
     }
 
-    private Officer findOfficerById(Long id) {
+    private Officer findOfficerById(
+            Long id) {
 
         Officer officer =
-                officerRepository.findById(id)
+                officerRepository
+                        .findById(id)
                         .orElseThrow(() ->
                                 new ResourceNotFoundException(
-                                        "Officer not found with id: " + id
+                                        "Officer not found with id: "
+                                                + id
                                 )
                         );
 
-        if (!Boolean.TRUE.equals(officer.getIsActive())) {
+        if (!Boolean.TRUE.equals(
+                officer.getIsActive())) {
+
             throw new ResourceNotFoundException(
-                    "Officer not found with id: " + id
+                    "Officer not found with id: "
+                            + id
             );
         }
 
