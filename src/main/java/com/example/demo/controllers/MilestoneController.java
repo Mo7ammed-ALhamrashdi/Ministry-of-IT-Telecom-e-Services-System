@@ -9,16 +9,20 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/milestone")
+// Exposes project milestone endpoints for creation, lookup, update, and deletion.
 public class MilestoneController {
 
+    // MilestoneService coordinates milestone operations for this web controller.
     private final MilestoneService milestoneService;
 
+    // Constructor injection makes the controller easier to test with a mocked service.
     public MilestoneController(
             MilestoneService milestoneService) {
 
         this.milestoneService = milestoneService;
     }
 
+    // Receives a validated milestone DTO and passes it to the service for creation.
     @PostMapping("/add")
     public MilestoneDTO add(
             @Valid @RequestBody MilestoneDTO dto) {
@@ -46,6 +50,7 @@ public class MilestoneController {
         return milestoneService.update(id, dto);
     }
 
+    // Delegates removal to the service instead of directly accessing a repository.
     @DeleteMapping("/delete/{id}")
     public String delete(
             @PathVariable Long id) {

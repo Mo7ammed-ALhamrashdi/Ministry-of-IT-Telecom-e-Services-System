@@ -10,10 +10,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/project")
+// Handles REST requests for ministry projects and project-specific reports.
 public class ProjectController {
 
+    // ProjectService owns project business rules such as progress and completion.
     private final ProjectService projectService;
 
+    // Constructor injection provides the controller with its required service collaborator.
     public ProjectController(
             ProjectService projectService) {
 
@@ -40,6 +43,7 @@ public class ProjectController {
         return projectService.getById(id);
     }
 
+    // The budget path variable is converted to BigDecimal for the service query.
     @GetMapping("/aboveBudget/{budget}")
     public List<ProjectDTO> getAboveBudget(
             @PathVariable BigDecimal budget) {
@@ -48,6 +52,7 @@ public class ProjectController {
                 .getProjectsAboveBudget(budget);
     }
 
+    // Returns milestone progress for a project by asking the service to calculate it.
     @GetMapping("/progress/{id}")
     public Double getProgress(
             @PathVariable Long id) {
@@ -56,6 +61,7 @@ public class ProjectController {
                 .getMilestoneProgress(id);
     }
 
+    // Completing a project is a state-changing business action, so it uses PUT.
     @PutMapping("/complete/{id}")
     public ProjectDTO complete(
             @PathVariable Long id) {
