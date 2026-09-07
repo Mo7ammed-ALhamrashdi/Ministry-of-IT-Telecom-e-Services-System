@@ -2,6 +2,8 @@ package com.example.demo.dtos;
 
 import com.example.demo.entities.Application;
 import com.example.demo.enums.ApplicationStatus;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -17,25 +19,32 @@ import java.util.List;
 public class ApplicationDTO {
 
     private Long id;
+
+    @NotNull(message = "Application date is required")
     private LocalDate applicationDate;
+
+    @NotNull(message = "Application status is required")
     private ApplicationStatus status;
+
+    @Size(max = 50, message = "Reference number must not exceed 50 characters")
     private String referenceNumber;
 
+    @NotNull(message = "Citizen id is required")
     private Long citizenId;
+
+    @NotNull(message = "Service id is required")
     private Long serviceId;
+
     private Long officerId;
+
     private Long paymentId;
 
-    public static ApplicationDTO convertToDTO(
-            Application application) {
-
+    public static ApplicationDTO convertToDTO(Application application) {
         return ApplicationDTO.builder()
                 .id(application.getId())
-                .applicationDate(
-                        application.getApplicationDate())
+                .applicationDate(application.getApplicationDate())
                 .status(application.getStatus())
-                .referenceNumber(
-                        application.getReferenceNumber())
+                .referenceNumber(application.getReferenceNumber())
                 .citizenId(
                         application.getCitizen() != null
                                 ? application.getCitizen().getId()
@@ -59,9 +68,7 @@ public class ApplicationDTO {
                 .build();
     }
 
-    public static List<ApplicationDTO> convertToDTO(
-            List<Application> applications) {
-
+    public static List<ApplicationDTO> convertToDTO(List<Application> applications) {
         return applications.stream()
                 .map(ApplicationDTO::convertToDTO)
                 .toList();

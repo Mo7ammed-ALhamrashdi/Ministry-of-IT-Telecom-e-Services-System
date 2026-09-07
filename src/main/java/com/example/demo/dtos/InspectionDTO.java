@@ -1,6 +1,8 @@
 package com.example.demo.dtos;
 
 import com.example.demo.entities.Inspection;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.Size;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -16,20 +18,26 @@ import java.util.List;
 public class InspectionDTO {
 
     private Long id;
+
+    @NotNull(message = "Inspection date is required")
     private LocalDate inspectionDate;
+
+    @Size(max = 200, message = "Result must not exceed 200 characters")
     private String result;
+
+    @Size(max = 1000, message = "Notes must not exceed 1000 characters")
     private String notes;
 
+    @NotNull(message = "Operator id is required")
     private Long operatorId;
+
+    @NotNull(message = "Officer id is required")
     private Long officerId;
 
-    public static InspectionDTO convertToDTO(
-            Inspection inspection) {
-
+    public static InspectionDTO convertToDTO(Inspection inspection) {
         return InspectionDTO.builder()
                 .id(inspection.getId())
-                .inspectionDate(
-                        inspection.getInspectionDate())
+                .inspectionDate(inspection.getInspectionDate())
                 .result(inspection.getResult())
                 .notes(inspection.getNotes())
                 .operatorId(
@@ -45,9 +53,7 @@ public class InspectionDTO {
                 .build();
     }
 
-    public static List<InspectionDTO> convertToDTO(
-            List<Inspection> inspections) {
-
+    public static List<InspectionDTO> convertToDTO(List<Inspection> inspections) {
         return inspections.stream()
                 .map(InspectionDTO::convertToDTO)
                 .toList();

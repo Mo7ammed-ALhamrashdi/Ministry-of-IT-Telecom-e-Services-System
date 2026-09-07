@@ -3,6 +3,8 @@ package com.example.demo.dtos;
 import com.example.demo.entities.Payment;
 import com.example.demo.enums.PaymentMethod;
 import com.example.demo.enums.PaymentStatus;
+import jakarta.validation.constraints.NotNull;
+import jakarta.validation.constraints.PositiveOrZero;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Data;
@@ -19,15 +21,23 @@ import java.util.List;
 public class PaymentDTO {
 
     private Long id;
+
+    @NotNull(message = "Amount is required")
+    @PositiveOrZero(message = "Amount cannot be negative")
     private BigDecimal amount;
+
+    @NotNull(message = "Payment method is required")
     private PaymentMethod method;
+
+    @NotNull(message = "Payment status is required")
     private PaymentStatus status;
+
     private LocalDate paidDate;
+
+    @NotNull(message = "Application id is required")
     private Long applicationId;
 
-    public static PaymentDTO convertToDTO(
-            Payment payment) {
-
+    public static PaymentDTO convertToDTO(Payment payment) {
         return PaymentDTO.builder()
                 .id(payment.getId())
                 .amount(payment.getAmount())
@@ -42,9 +52,7 @@ public class PaymentDTO {
                 .build();
     }
 
-    public static List<PaymentDTO> convertToDTO(
-            List<Payment> payments) {
-
+    public static List<PaymentDTO> convertToDTO(List<Payment> payments) {
         return payments.stream()
                 .map(PaymentDTO::convertToDTO)
                 .toList();
