@@ -10,10 +10,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/application")
+// Handles REST requests for citizen service applications.
 public class ApplicationController {
 
+    // The controller depends on the service to keep business rules out of the web layer.
     private final ApplicationService applicationService;
 
+    // Constructor injection makes the required service dependency explicit and testable.
     public ApplicationController(
             ApplicationService applicationService) {
 
@@ -21,6 +24,7 @@ public class ApplicationController {
                 applicationService;
     }
 
+    // Creates a new application from a validated DTO sent in the request body.
     @PostMapping("/add")
     public ApplicationDTO add(
             @Valid @RequestBody ApplicationDTO dto) {
@@ -34,6 +38,7 @@ public class ApplicationController {
         return applicationService.getAll();
     }
 
+    // Reads the application id from the URL and asks the service for that record.
     @GetMapping("/getById/{id}")
     public ApplicationDTO getById(
             @PathVariable Long id) {
@@ -58,6 +63,7 @@ public class ApplicationController {
                 .getCitizenHistory(citizenId);
     }
 
+    // Approval is modeled as a PUT because it changes the state of an existing application.
     @PutMapping("/approve/{id}")
     public ApplicationDTO approve(
             @PathVariable Long id) {
