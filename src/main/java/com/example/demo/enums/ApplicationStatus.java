@@ -1,4 +1,9 @@
 package com.example.demo.enums;
 
-public class ApplicationStatus {
+public enum ApplicationStatus {
+
+    PENDING,
+    PROCESSING,
+    APPROVED,
+    REJECTED
 }
