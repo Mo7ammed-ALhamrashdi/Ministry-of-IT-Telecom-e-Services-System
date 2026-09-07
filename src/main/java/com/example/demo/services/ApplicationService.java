@@ -24,6 +24,7 @@ import java.util.UUID;
 @Service
 public class  ApplicationService {
 
+    // Coordinates application submission, officer assignment, payment gating, and decision records.
     private final ApplicationRepository applicationRepository;
     private final CitizenRepository citizenRepository;
     private final MinistryServiceRepository ministryServiceRepository;
@@ -37,6 +38,7 @@ public class  ApplicationService {
             OfficerRepository officerRepository,
             DocumentRepository documentRepository) {
 
+        // Repositories are injected so this service can validate related records before saving applications.
         this.applicationRepository =
                 applicationRepository;
 
@@ -56,6 +58,7 @@ public class  ApplicationService {
     public ApplicationDTO add(
             ApplicationDTO dto) {
 
+        // The citizen must exist and be active before a new application can reference it.
         Citizen citizen =
                 findCitizenById(
                         dto.getCitizenId()
@@ -66,6 +69,7 @@ public class  ApplicationService {
                         dto.getServiceId()
                 );
 
+        // DTO values are copied into a new entity while system-owned fields are set by the service.
         Application application =
                 new Application();
 
@@ -77,6 +81,7 @@ public class  ApplicationService {
                 ApplicationStatus.PENDING
         );
 
+        // New applications always receive a generated reference number for later tracking.
         application.setReferenceNumber(
                 generateReferenceNumber()
         );
@@ -124,6 +129,7 @@ public class  ApplicationService {
                 applicationRepository
                         .findAll()
                         .stream()
+                        // Only active applications are exposed through normal read operations.
                         .filter(application ->
                                 Boolean.TRUE.equals(
                                         application.getIsActive()
@@ -175,6 +181,7 @@ public class  ApplicationService {
 
         if (dto.getOfficerId() != null) {
 
+            // Officer reassignment is optional and only happens when the DTO provides an officer id.
             application.setOfficer(
                     findOfficerById(
                             dto.getOfficerId()
@@ -234,6 +241,7 @@ public class  ApplicationService {
         Application application =
                 findApplicationById(id);
 
+        // Approval is blocked until an active PAID payment is attached to the application.
         verifyApplicationPaid(
                 application
         );
@@ -299,6 +307,7 @@ public class  ApplicationService {
         Application application =
                 findApplicationById(id);
 
+        // Soft delete preserves the application row while hiding it from active lookups.
         application.setIsActive(false);
 
         application.setUpdatedDate(
@@ -322,6 +331,7 @@ public class  ApplicationService {
     private Officer assignOfficer(
             MinistryService ministryService) {
 
+        // A service without a department cannot be routed to a responsible officer.
         if (ministryService.getDepartment()
                 == null) {
 
@@ -382,6 +392,7 @@ public class  ApplicationService {
             Application application,
             String decision) {
 
+        // A decision document is created after approval or rejection for the application record.
         Document document =
                 new Document();
 

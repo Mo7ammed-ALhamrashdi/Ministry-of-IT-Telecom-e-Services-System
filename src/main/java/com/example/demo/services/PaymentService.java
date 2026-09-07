@@ -18,6 +18,7 @@ import java.util.Optional;
 @Service
 public class  PaymentService {
 
+    // Handles payment records and the application status changes caused by successful payment.
     private final PaymentRepository paymentRepository;
     private final ApplicationRepository applicationRepository;
 
@@ -40,6 +41,7 @@ public class  PaymentService {
                         dto.getApplicationId()
                 );
 
+        // An application can have only one active payment record in this service flow.
         Optional<Payment> existingPayment =
                 paymentRepository
                         .findByApplicationIdAndIsActiveTrue(
@@ -53,6 +55,7 @@ public class  PaymentService {
                             .get()
                             .getStatus())) {
 
+                // A completed payment cannot be duplicated for the same application.
                 throw new IllegalArgumentException(
                         "Application has already been paid"
                 );
@@ -81,6 +84,7 @@ public class  PaymentService {
         if (PaymentStatus.PAID.equals(
                 dto.getStatus())) {
 
+            // Paid payments receive today's date when the caller does not provide a paid date.
             payment.setPaidDate(
                     dto.getPaidDate() != null
                             ? dto.getPaidDate()
@@ -91,6 +95,7 @@ public class  PaymentService {
                     ApplicationStatus.PROCESSING
             );
 
+            // A paid application moves to PROCESSING so ministry staff can begin handling it.
             application.setUpdatedDate(
                     LocalDateTime.now()
             );
@@ -174,6 +179,7 @@ public class  PaymentService {
         if (PaymentStatus.PAID.equals(
                 payment.getStatus())) {
 
+            // Once a payment is marked PAID, later updates are rejected to protect the audit trail.
             throw new IllegalArgumentException(
                     "Paid payment cannot be changed"
             );
@@ -243,6 +249,7 @@ public class  PaymentService {
         Payment payment =
                 findPaymentById(id);
 
+        // Payment deletion is implemented as an inactive flag instead of removing the database row.
         payment.setIsActive(false);
 
         payment.setUpdatedDate(
