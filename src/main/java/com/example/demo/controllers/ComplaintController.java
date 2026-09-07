@@ -9,10 +9,13 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/complaint")
+// Manages complaint intake, assignment, updates, resolution, and deletion requests.
 public class ComplaintController {
 
+    // ComplaintService owns the workflow rules for complaint processing.
     private final ComplaintService complaintService;
 
+    // Spring uses this constructor to provide the service dependency when the controller is created.
     public ComplaintController(
             ComplaintService complaintService) {
 
@@ -21,6 +24,7 @@ public class ComplaintController {
 
 
     // ADD COMPLAINT
+    // Accepts a validated complaint DTO so invalid request data is rejected before service logic runs.
     @PostMapping("/add")
     public ComplaintDTO add(
             @Valid @RequestBody ComplaintDTO dto) {
@@ -70,6 +74,7 @@ public class ComplaintController {
 
 
     // ASSIGN OFFICER
+    // Uses two path variables to identify both the complaint and the officer being assigned.
     @PutMapping(
             "/assignOfficer/{complaintId}/{officerId}"
     )
@@ -94,6 +99,7 @@ public class ComplaintController {
 
 
     // SOFT DELETE
+    // The service handles the soft-delete behavior so the controller does not manage persistence flags.
     @DeleteMapping("/delete/{id}")
     public String  delete(
             @PathVariable Long id) {

@@ -9,8 +9,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/inspection")
+// Handles REST endpoints for inspection records and their lifecycle.
 public class InspectionController {
 
+    // InspectionService performs the actual inspection data operations.
     private final InspectionService inspectionService;
 
     public InspectionController(
@@ -19,6 +21,7 @@ public class InspectionController {
         this.inspectionService = inspectionService;
     }
 
+    // The POST endpoint accepts an InspectionDTO from JSON and sends it to the service.
     @PostMapping("/add")
     public InspectionDTO add(
             @Valid @RequestBody InspectionDTO dto) {
@@ -31,6 +34,7 @@ public class InspectionController {
         return inspectionService.getAll();
     }
 
+    // The id path variable identifies which inspection record should be returned.
     @GetMapping("/getById/{id}")
     public InspectionDTO getById(
             @PathVariable Long id) {
@@ -46,6 +50,7 @@ public class InspectionController {
         return inspectionService.update(id, dto);
     }
 
+    // The service handles the delete operation and any inspection-specific rules.
     @DeleteMapping("/delete/{id}")
     public String delete(
             @PathVariable Long id) {
