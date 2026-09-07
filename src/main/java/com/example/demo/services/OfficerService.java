@@ -14,6 +14,7 @@ import java.util.List;
 @Service
 public class  OfficerService {
 
+    // Manages ministry officers and keeps each officer assigned to an active department.
     private final OfficerRepository officerRepository;
     private final DepartmentRepository departmentRepository;
 
@@ -27,6 +28,7 @@ public class  OfficerService {
 
     public OfficerDTO add(OfficerDTO dto) {
 
+        // Officer creation resolves the department id from the DTO into a managed entity.
         Department department =
                 findDepartmentById(dto.getDepartmentId());
 
@@ -52,6 +54,7 @@ public class  OfficerService {
         List<Officer> officers =
                 officerRepository.findAll()
                         .stream()
+                        // Inactive officers are excluded from normal officer listings.
                         .filter(officer ->
                                 Boolean.TRUE.equals(
                                         officer.getIsActive()
@@ -96,6 +99,7 @@ public class  OfficerService {
         Officer officer =
                 findOfficerById(id);
 
+        // Soft delete prevents future assignment while retaining the officer record.
         officer.setIsActive(false);
         officer.setUpdatedDate(LocalDateTime.now());
 

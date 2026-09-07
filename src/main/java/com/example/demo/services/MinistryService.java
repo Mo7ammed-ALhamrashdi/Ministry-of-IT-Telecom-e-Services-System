@@ -12,6 +12,7 @@ import java.util.List;
 @Service
 public class  MinistryService {
 
+    // Provides CRUD-style ministry operations while preserving inactive records.
     private final MinistryRepository ministryRepository;
 
     public MinistryService(MinistryRepository ministryRepository) {
@@ -20,6 +21,7 @@ public class  MinistryService {
 
     public MinistryDTO add(MinistryDTO dto) {
 
+        // New ministries are created from DTO fields and initialized as active records.
         Ministry ministry = new Ministry();
 
         ministry.setName(dto.getName());
@@ -38,6 +40,7 @@ public class  MinistryService {
         List<Ministry> ministries =
                 ministryRepository.findAll()
                         .stream()
+                        // Normal reads hide ministries that were soft deleted.
                         .filter(ministry ->
                                 Boolean.TRUE.equals(
                                         ministry.getIsActive()

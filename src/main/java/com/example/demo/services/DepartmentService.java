@@ -14,6 +14,7 @@ import java.util.List;
 @Service
 public class  DepartmentService {
 
+    // Maintains departments and their required parent ministry relationship.
     private final DepartmentRepository departmentRepository;
     private final MinistryRepository ministryRepository;
 
@@ -27,6 +28,7 @@ public class  DepartmentService {
 
     public DepartmentDTO add(DepartmentDTO dto) {
 
+        // The parent ministry is resolved first so the new department points to an active ministry.
         Ministry ministry =
                 findMinistryById(dto.getMinistryId());
 
@@ -94,6 +96,7 @@ public class  DepartmentService {
         Department department =
                 findDepartmentById(id);
 
+        // Soft delete disables the department without physically deleting it.
         department.setIsActive(false);
         department.setUpdatedDate(LocalDateTime.now());
 
@@ -123,6 +126,7 @@ public class  DepartmentService {
 
     private Ministry findMinistryById(Long id) {
 
+        // Related ministries must be active before department creation or updates can use them.
         Ministry ministry =
                 ministryRepository.findById(id)
                         .orElseThrow(() ->
