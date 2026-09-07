@@ -19,6 +19,7 @@ import java.util.List;
 @Service
 public class  ComplaintService {
 
+    // Manages complaint intake, assignment, resolution, and operator-specific complaint views.
     private final ComplaintRepository complaintRepository;
     private final CitizenRepository citizenRepository;
     private final OperatorRepository operatorRepository;
@@ -30,6 +31,7 @@ public class  ComplaintService {
             OperatorRepository operatorRepository,
             OfficerRepository officerRepository) {
 
+        // Constructor injection provides the repositories needed to validate complaint relationships.
         this.complaintRepository = complaintRepository;
         this.citizenRepository = citizenRepository;
         this.operatorRepository = operatorRepository;
@@ -37,7 +39,7 @@ public class  ComplaintService {
     }
 
 
-    // ADD COMPLAINT
+    // Complaint creation links an active citizen to an active operator before saving the case.
     public ComplaintDTO add(
             ComplaintDTO dto) {
 
@@ -81,6 +83,7 @@ public class  ComplaintService {
 
         if (dto.getOfficerId() != null) {
 
+            // Officer assignment is optional during intake, so complaints can be filed before routing.
             Officer officer =
                     findOfficerById(
                             dto.getOfficerId()
@@ -115,7 +118,6 @@ public class  ComplaintService {
     }
 
 
-    // GET ALL
     public List<ComplaintDTO> getAll() {
 
         List<Complaint> complaints =
@@ -136,7 +138,6 @@ public class  ComplaintService {
     }
 
 
-    // GET BY ID
     public ComplaintDTO getById(
             Long id) {
 
@@ -150,7 +151,6 @@ public class  ComplaintService {
     }
 
 
-    // UPDATE
     public ComplaintDTO update(
             Long id,
             ComplaintDTO dto) {
@@ -230,7 +230,7 @@ public class  ComplaintService {
     }
 
 
-    // ASSIGN OFFICER
+    // Assigning an officer also moves the complaint into active processing.
     public ComplaintDTO assignOfficer(
             Long complaintId,
             Long officerId) {
@@ -274,7 +274,6 @@ public class  ComplaintService {
     }
 
 
-    // RESOLVE COMPLAINT
     public ComplaintDTO resolve(
             Long complaintId) {
 
@@ -317,7 +316,7 @@ public class  ComplaintService {
     }
 
 
-    // GET OPEN COMPLAINTS BY OPERATOR
+    // This custom query returns operator complaints whose status is not RESOLVED.
     public List<ComplaintDTO>
     getOpenComplaintsByOperator(
             Long operatorId) {
@@ -341,7 +340,6 @@ public class  ComplaintService {
     }
 
 
-    // SOFT DELETE
     public void delete(
             Long id) {
 
@@ -363,7 +361,7 @@ public class  ComplaintService {
     }
 
 
-    // FIND COMPLAINT
+    // ResourceNotFoundException is used for missing or inactive complaints to keep API behavior consistent.
     private Complaint findComplaintById(
             Long id) {
 
@@ -392,7 +390,6 @@ public class  ComplaintService {
     }
 
 
-    // FIND CITIZEN
     private Citizen findCitizenById(
             Long id) {
 
@@ -421,7 +418,6 @@ public class  ComplaintService {
     }
 
 
-    // FIND OPERATOR
     private Operator findOperatorById(
             Long id) {
 
@@ -450,7 +446,7 @@ public class  ComplaintService {
     }
 
 
-    // FIND OFFICER
+    // Officer lookup protects assignments from using inactive officer records.
     private Officer findOfficerById(
             Long id) {
 

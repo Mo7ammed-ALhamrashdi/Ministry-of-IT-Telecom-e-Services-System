@@ -16,6 +16,7 @@ import java.util.List;
 @Service
 public class  InspectionService {
 
+    // Records operator inspections performed by officers and keeps those links active.
     private final InspectionRepository inspectionRepository;
     private final OperatorRepository operatorRepository;
     private final OfficerRepository officerRepository;
@@ -48,6 +49,7 @@ public class  InspectionService {
                         dto.getOfficerId()
                 );
 
+        // Inspection details come from the DTO while relationships are resolved through helpers.
         Inspection inspection =
                 new Inspection();
 
@@ -97,6 +99,7 @@ public class  InspectionService {
                 inspectionRepository
                         .findAll()
                         .stream()
+                        // Service reads expose only inspections that have not been soft deleted.
                         .filter(inspection ->
                                 Boolean.TRUE.equals(
                                         inspection.getIsActive()
@@ -134,6 +137,7 @@ public class  InspectionService {
                         dto.getOfficerId()
                 );
 
+        // Updating refreshes both inspection content and the linked active operator/officer pair.
         inspection.setInspectionDate(
                 dto.getInspectionDate()
         );
@@ -174,6 +178,7 @@ public class  InspectionService {
         Inspection inspection =
                 findInspectionById(id);
 
+        // Soft deletion preserves the inspection record for audit history.
         inspection.setIsActive(false);
 
         inspection.setUpdatedDate(
