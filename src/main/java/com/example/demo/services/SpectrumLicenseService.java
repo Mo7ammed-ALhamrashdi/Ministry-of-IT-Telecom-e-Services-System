@@ -13,7 +13,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class SpectrumLicenseService {
+public class  SpectrumLicenseService {
 
     private final SpectrumLicenseRepository spectrumLicenseRepository;
     private final OperatorRepository operatorRepository;

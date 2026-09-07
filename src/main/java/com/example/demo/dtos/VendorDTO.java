@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class VendorDTO {
+public class  VendorDTO {
 
     private Long id;
 

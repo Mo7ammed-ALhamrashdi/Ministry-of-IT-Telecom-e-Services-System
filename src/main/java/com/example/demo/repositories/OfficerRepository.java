@@ -9,7 +9,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface OfficerRepository
+public interface  OfficerRepository
         extends JpaRepository<Officer, Long> {
 
     @Query("""

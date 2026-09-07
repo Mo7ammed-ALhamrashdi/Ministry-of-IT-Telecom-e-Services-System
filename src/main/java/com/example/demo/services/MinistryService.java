@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class MinistryService {
+public class  MinistryService {
 
     private final MinistryRepository ministryRepository;
 

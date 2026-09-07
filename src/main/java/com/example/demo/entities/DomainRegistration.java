@@ -17,7 +17,7 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @Table(name = "domain_registrations")
-public class DomainRegistration extends BaseClass {
+public class  DomainRegistration extends BaseClass {
 
     @Column(nullable = false, length = 150)
     private String domainName;

@@ -16,7 +16,7 @@ import java.util.List;
 @AllArgsConstructor
 public class MinistryDTO {
 
-    private Long id;
+    private  Long id;
 
     @NotBlank(message = "Ministry name is required")
     @Size(max = 100, message = "Name must not exceed 100 characters")

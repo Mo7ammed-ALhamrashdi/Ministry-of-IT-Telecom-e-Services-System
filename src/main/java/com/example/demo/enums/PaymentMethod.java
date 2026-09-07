@@ -1,6 +1,6 @@
 package com.example.demo.enums;
 
-public enum PaymentMethod {
+public enum  PaymentMethod {
     CASH,
     CARD,
     ONLINE

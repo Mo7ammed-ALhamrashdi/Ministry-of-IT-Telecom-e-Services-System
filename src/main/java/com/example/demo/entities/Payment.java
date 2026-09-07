@@ -21,7 +21,7 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @Table(name = "payments")
-public class Payment extends BaseClass {
+public class  Payment extends BaseClass {
 
     @Column(nullable = false)
     private BigDecimal amount;

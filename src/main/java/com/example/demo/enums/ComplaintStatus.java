@@ -1,6 +1,6 @@
 package com.example.demo.enums;
 
-public enum ComplaintStatus {
+public enum  ComplaintStatus {
     OPEN,
     IN_PROGRESS,
     RESOLVED

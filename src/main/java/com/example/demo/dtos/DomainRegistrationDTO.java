@@ -19,7 +19,7 @@ import java.util.List;
 @AllArgsConstructor
 public class DomainRegistrationDTO {
 
-    private Long id;
+    private  Long id;
 
     @NotBlank(message = "Domain name is required")
     @Size(max = 150, message = "Domain name must not exceed 150 characters")

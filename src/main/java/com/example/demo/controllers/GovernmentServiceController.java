@@ -39,7 +39,7 @@ public class GovernmentServiceController {
     }
 
     @PutMapping("/update/{id}")
-    public MinistryServiceDTO update(
+    public  MinistryServiceDTO update(
             @PathVariable Long id,
             @Valid @RequestBody MinistryServiceDTO dto) {
 

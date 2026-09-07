@@ -43,7 +43,7 @@ public class DocumentController {
             @PathVariable Long id,
             @Valid @RequestBody DocumentDTO dto) {
 
-        return documentService.update(id, dto);
+        return  documentService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")

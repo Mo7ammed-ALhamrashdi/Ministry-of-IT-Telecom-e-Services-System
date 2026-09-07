@@ -17,7 +17,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class ComplaintService {
+public class  ComplaintService {
 
     private final ComplaintRepository complaintRepository;
     private final CitizenRepository citizenRepository;

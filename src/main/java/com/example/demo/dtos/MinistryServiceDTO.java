@@ -20,7 +20,7 @@ import java.util.List;
 @AllArgsConstructor
 public class MinistryServiceDTO {
 
-    private Long id;
+    private  Long id;
 
     @NotBlank(message = "Service name is required")
     @Size(max = 100, message = "Service name must not exceed 100 characters")

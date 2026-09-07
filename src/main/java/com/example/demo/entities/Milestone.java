@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @Table(name = "milestones")
-public class Milestone extends BaseClass {
+public class  Milestone extends BaseClass {
 
     @Column(nullable = false, length = 150)
     private String title;

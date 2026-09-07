@@ -41,7 +41,7 @@ public class MinistryController {
             @PathVariable Long id,
             @Valid @RequestBody MinistryDTO dto) {
 
-        return ministryService.update(id, dto);
+        return  ministryService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")

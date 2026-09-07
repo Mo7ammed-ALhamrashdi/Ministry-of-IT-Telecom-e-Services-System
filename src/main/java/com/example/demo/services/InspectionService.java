@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class InspectionService {
+public class  InspectionService {
 
     private final InspectionRepository inspectionRepository;
     private final OperatorRepository operatorRepository;

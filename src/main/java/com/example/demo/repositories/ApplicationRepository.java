@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ApplicationRepository
+public interface  ApplicationRepository
         extends JpaRepository<Application, Long> {
 
     @Query("""

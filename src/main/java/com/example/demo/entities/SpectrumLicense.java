@@ -19,7 +19,7 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @Table(name = "spectrum_licenses")
-public class SpectrumLicense extends BaseClass {
+public class  SpectrumLicense extends BaseClass {
 
     @Column(nullable = false, length = 100)
     private String bandName;

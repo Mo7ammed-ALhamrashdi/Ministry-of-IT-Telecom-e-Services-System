@@ -79,7 +79,7 @@ public class ApplicationController {
             @PathVariable Long id,
             @Valid @RequestBody ApplicationDTO dto) {
 
-        return applicationService.update(
+        return  applicationService.update(
                 id,
                 dto
         );

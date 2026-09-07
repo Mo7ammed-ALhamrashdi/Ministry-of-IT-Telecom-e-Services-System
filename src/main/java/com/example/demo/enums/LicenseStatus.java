@@ -1,6 +1,6 @@
 package com.example.demo.enums;
 
-public enum LicenseStatus {
+public enum  LicenseStatus {
     ACTIVE,
     EXPIRED,
     SUSPENDED

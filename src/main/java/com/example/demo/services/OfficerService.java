@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class OfficerService {
+public class  OfficerService {
 
     private final OfficerRepository officerRepository;
     private final DepartmentRepository departmentRepository;

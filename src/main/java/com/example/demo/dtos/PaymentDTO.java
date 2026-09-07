@@ -39,7 +39,7 @@ public class PaymentDTO {
 
     public static PaymentDTO convertToDTO(Payment payment) {
 
-        return PaymentDTO.builder()
+        return  PaymentDTO.builder()
                 .id(payment.getId())
                 .amount(payment.getAmount())
                 .method(payment.getMethod())

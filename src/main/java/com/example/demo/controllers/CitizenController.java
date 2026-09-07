@@ -39,7 +39,7 @@ public class CitizenController {
     }
 
     @PutMapping("/update/{id}")
-    public CitizenDTO update(
+    public  CitizenDTO update(
             @PathVariable Long id,
             @Valid @RequestBody CitizenDTO dto) {
 

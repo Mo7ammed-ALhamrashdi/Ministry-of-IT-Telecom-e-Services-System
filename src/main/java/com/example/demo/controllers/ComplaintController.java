@@ -95,7 +95,7 @@ public class ComplaintController {
 
     // SOFT DELETE
     @DeleteMapping("/delete/{id}")
-    public String delete(
+    public String  delete(
             @PathVariable Long id) {
 
         complaintService.delete(id);

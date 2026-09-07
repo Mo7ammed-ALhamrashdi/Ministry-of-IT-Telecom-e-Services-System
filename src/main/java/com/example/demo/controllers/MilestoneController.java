@@ -39,7 +39,7 @@ public class MilestoneController {
     }
 
     @PutMapping("/update/{id}")
-    public MilestoneDTO update(
+    public  MilestoneDTO update(
             @PathVariable Long id,
             @Valid @RequestBody MilestoneDTO dto) {
 

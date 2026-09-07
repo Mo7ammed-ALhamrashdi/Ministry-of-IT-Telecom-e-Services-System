@@ -43,7 +43,7 @@ public class VendorController {
             @PathVariable Long id,
             @Valid @RequestBody VendorDTO dto) {
 
-        return vendorService.update(id, dto);
+        return  vendorService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")

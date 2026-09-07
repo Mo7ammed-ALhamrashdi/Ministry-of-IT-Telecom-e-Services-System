@@ -10,7 +10,7 @@ import java.math.BigDecimal;
 import java.util.List;
 
 @Repository
-public interface ProjectRepository
+public interface  ProjectRepository
         extends JpaRepository<Project, Long> {
 
     @Query("""

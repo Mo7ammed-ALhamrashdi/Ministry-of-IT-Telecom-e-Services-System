@@ -15,7 +15,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "vendors")
-public class Vendor extends BaseClass {
+public class  Vendor extends BaseClass {
 
     @Column(nullable = false, length = 100)
     private String name;

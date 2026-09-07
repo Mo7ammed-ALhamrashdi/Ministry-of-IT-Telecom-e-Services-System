@@ -10,7 +10,7 @@ import org.springframework.stereotype.Repository;
 import java.util.List;
 
 @Repository
-public interface ComplaintRepository
+public interface  ComplaintRepository
         extends JpaRepository<Complaint, Long> {
 
     @Query("""

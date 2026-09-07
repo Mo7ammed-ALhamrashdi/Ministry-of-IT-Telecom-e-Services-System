@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 public class OfficerDTO {
 
-    private Long id;
+    private  Long id;
 
     @NotBlank(message = "Officer name is required")
     @Size(max = 100, message = "Name must not exceed 100 characters")

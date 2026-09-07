@@ -43,7 +43,7 @@ public class DepartmentController {
             @PathVariable Long id,
             @Valid @RequestBody DepartmentDTO dto) {
 
-        return departmentService.update(id, dto);
+        return  departmentService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")

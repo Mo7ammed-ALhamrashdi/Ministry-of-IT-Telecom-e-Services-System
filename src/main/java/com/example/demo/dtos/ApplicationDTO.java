@@ -18,7 +18,7 @@ import java.util.List;
 @AllArgsConstructor
 public class ApplicationDTO {
 
-    private Long id;
+    private  Long id;
 
     @NotNull(message = "Application date is required")
     private LocalDate applicationDate;

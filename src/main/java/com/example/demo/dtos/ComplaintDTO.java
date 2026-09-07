@@ -61,7 +61,7 @@ public class ComplaintDTO {
                                 : null
                 )
                 .officerId(
-                        complaint.getOfficer() != null
+                         complaint.getOfficer() != null
                                 ? complaint.getOfficer().getId()
                                 : null
                 )

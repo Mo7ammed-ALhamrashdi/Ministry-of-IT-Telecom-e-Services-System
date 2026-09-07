@@ -39,7 +39,7 @@ public class InspectionController {
     }
 
     @PutMapping("/update/{id}")
-    public InspectionDTO update(
+    public  InspectionDTO update(
             @PathVariable Long id,
             @Valid @RequestBody InspectionDTO dto) {
 

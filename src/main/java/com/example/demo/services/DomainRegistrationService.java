@@ -12,7 +12,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class DomainRegistrationService {
+public class  DomainRegistrationService {
 
     private final DomainRegistrationRepository domainRegistrationRepository;
     private final CitizenRepository citizenRepository;

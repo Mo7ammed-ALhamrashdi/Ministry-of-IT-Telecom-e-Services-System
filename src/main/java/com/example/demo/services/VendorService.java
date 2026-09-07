@@ -10,7 +10,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class VendorService {
+public class  VendorService {
 
     private final VendorRepository vendorRepository;
 

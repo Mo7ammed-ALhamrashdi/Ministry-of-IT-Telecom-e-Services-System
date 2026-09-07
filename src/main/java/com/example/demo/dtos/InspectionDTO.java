@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class InspectionDTO {
 
-    private Long id;
+    private  Long id;
 
     @NotNull(message = "Inspection date is required")
     private LocalDate inspectionDate;

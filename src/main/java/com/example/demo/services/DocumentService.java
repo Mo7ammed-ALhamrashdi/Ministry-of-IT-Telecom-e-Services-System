@@ -14,7 +14,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Service
-public class DocumentService {
+public class  DocumentService {
 
     private final DocumentRepository documentRepository;
     private final ApplicationRepository applicationRepository;

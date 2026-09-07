@@ -1,6 +1,6 @@
 package com.example.demo.enums;
 
-public enum ApplicationStatus {
+public enum  ApplicationStatus {
 
     PENDING,
     PROCESSING,

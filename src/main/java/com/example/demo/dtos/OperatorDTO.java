@@ -17,7 +17,7 @@ import java.util.List;
 @AllArgsConstructor
 public class OperatorDTO {
 
-    private Long id;
+    private  Long id;
 
     @NotBlank(message = "Operator name is required")
     @Size(max = 100, message = "Name must not exceed 100 characters")

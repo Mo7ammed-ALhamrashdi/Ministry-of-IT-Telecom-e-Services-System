@@ -1,6 +1,6 @@
 package com.example.demo.enums;
 
-public enum DomainStatus {
+public enum  DomainStatus {
     ACTIVE,
     EXPIRED,
     SUSPENDED

@@ -54,7 +54,7 @@ public class DocumentDTO {
                 .build();
     }
 
-    public static List<DocumentDTO> convertToDTO(List<Document> documents) {
+    public static  List<DocumentDTO> convertToDTO(List<Document> documents) {
         return documents.stream()
                 .map(DocumentDTO::convertToDTO)
                 .toList();

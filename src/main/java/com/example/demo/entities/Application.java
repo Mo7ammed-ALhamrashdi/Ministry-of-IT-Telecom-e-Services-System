@@ -15,7 +15,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "applications")
-public class Application extends BaseClass {
+public class  Application extends BaseClass {
 
     @Column(nullable = false)
     private LocalDate applicationDate;

@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface DomainRegistrationRepository
+public interface  DomainRegistrationRepository
         extends JpaRepository<DomainRegistration, Long> {
 
     Optional<DomainRegistration>

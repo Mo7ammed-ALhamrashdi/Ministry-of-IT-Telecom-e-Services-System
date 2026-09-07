@@ -34,7 +34,7 @@ public class DomainRegistrationController {
     }
 
     @GetMapping("/getById/{id}")
-    public DomainRegistrationDTO getById(
+    public  DomainRegistrationDTO getById(
             @PathVariable Long id) {
 
         return domainRegistrationService.getById(id);

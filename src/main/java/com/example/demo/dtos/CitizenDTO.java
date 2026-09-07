@@ -15,7 +15,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class CitizenDTO {
+public  class CitizenDTO {
 
     private Long id;
 

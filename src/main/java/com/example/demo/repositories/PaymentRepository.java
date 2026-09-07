@@ -7,7 +7,7 @@ import org.springframework.stereotype.Repository;
 import java.util.Optional;
 
 @Repository
-public interface PaymentRepository
+public interface  PaymentRepository
         extends JpaRepository<Payment, Long> {
 
     Optional<Payment>

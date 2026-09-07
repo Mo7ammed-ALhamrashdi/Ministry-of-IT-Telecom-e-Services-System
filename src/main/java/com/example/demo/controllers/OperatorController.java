@@ -43,7 +43,7 @@ public class OperatorController {
             @PathVariable Long id,
             @Valid @RequestBody OperatorDTO dto) {
 
-        return operatorService.update(id, dto);
+        return  operatorService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")

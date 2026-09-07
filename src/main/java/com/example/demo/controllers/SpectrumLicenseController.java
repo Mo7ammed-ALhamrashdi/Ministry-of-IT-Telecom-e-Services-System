@@ -60,7 +60,7 @@ public class SpectrumLicenseController {
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(
+    public  String delete(
             @PathVariable Long id) {
 
         spectrumLicenseService.delete(id);

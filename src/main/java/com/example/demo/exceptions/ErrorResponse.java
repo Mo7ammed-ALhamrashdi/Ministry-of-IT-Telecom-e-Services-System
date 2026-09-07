@@ -2,7 +2,7 @@ package com.example.demo.exceptions;
 
 import java.time.LocalDateTime;
 
-public record ErrorResponse(
+public record  ErrorResponse(
         int status,
         String error,
         String message,

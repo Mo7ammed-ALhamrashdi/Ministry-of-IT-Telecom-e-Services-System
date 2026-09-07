@@ -18,7 +18,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 @Service
-public class ProjectService {
+public class  ProjectService {
 
     private final ProjectRepository projectRepository;
     private final MinistryRepository ministryRepository;

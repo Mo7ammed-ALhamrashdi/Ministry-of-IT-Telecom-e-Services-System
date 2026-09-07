@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @Table(name = "documents")
-public class Document extends BaseClass {
+public class  Document extends BaseClass {
 
     @Column(nullable = false, length = 150)
     private String title;

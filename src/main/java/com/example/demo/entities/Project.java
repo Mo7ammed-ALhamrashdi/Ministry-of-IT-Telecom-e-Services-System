@@ -25,7 +25,7 @@ import java.util.List;
 @Setter
 @Entity
 @Table(name = "projects")
-public class Project extends BaseClass {
+public class  Project extends BaseClass {
 
     @Column(nullable = false, length = 150)
     private String title;

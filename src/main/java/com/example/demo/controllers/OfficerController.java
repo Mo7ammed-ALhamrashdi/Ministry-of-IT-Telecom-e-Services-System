@@ -43,7 +43,7 @@ public class OfficerController {
             @PathVariable Long id,
             @Valid @RequestBody OfficerDTO dto) {
 
-        return officerService.update(id, dto);
+        return  officerService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")

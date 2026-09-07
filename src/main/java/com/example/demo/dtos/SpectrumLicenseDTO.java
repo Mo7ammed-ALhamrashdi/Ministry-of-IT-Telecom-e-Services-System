@@ -18,7 +18,7 @@ import java.util.List;
 @Builder
 @NoArgsConstructor
 @AllArgsConstructor
-public class SpectrumLicenseDTO {
+public class  SpectrumLicenseDTO {
 
     private Long id;
 

@@ -15,7 +15,7 @@ import java.time.LocalDate;
 @Setter
 @Entity
 @Table(name = "inspections")
-public class Inspection extends BaseClass {
+public class  Inspection extends BaseClass {
 
     @Column(nullable = false)
     private LocalDate inspectionDate;

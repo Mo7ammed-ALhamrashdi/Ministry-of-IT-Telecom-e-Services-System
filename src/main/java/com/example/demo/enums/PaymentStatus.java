@@ -1,6 +1,6 @@
 package com.example.demo.enums;
 
-public enum PaymentStatus {
+public enum  PaymentStatus {
     PENDING,
     PAID,
     FAILED
