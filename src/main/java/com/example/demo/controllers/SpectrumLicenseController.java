@@ -29,6 +29,7 @@ public class SpectrumLicenseController {
 
     @GetMapping("/getAll")
     public List<SpectrumLicenseDTO> getAll() {
+
         return spectrumLicenseService.getAll();
     }
 
@@ -39,12 +40,23 @@ public class SpectrumLicenseController {
         return spectrumLicenseService.getById(id);
     }
 
+    @GetMapping("/expiringSoon")
+    public List<SpectrumLicenseDTO>
+    getExpiringSoon() {
+
+        return spectrumLicenseService
+                .getExpiringWithin30Days();
+    }
+
     @PutMapping("/update/{id}")
     public SpectrumLicenseDTO update(
             @PathVariable Long id,
             @Valid @RequestBody SpectrumLicenseDTO dto) {
 
-        return spectrumLicenseService.update(id, dto);
+        return spectrumLicenseService.update(
+                id,
+                dto
+        );
     }
 
     @DeleteMapping("/delete/{id}")
@@ -53,6 +65,6 @@ public class SpectrumLicenseController {
 
         spectrumLicenseService.delete(id);
 
-        return "Spectrum License deleted successfully";
+        return "Spectrum license deleted successfully";
     }
 }

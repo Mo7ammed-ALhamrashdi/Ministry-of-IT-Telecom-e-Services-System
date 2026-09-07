@@ -11,31 +11,33 @@ import java.util.List;
 @RequestMapping("/domain")
 public class DomainRegistrationController {
 
-    private final DomainRegistrationService service;
+    private final DomainRegistrationService domainRegistrationService;
 
     public DomainRegistrationController(
-            DomainRegistrationService service) {
+            DomainRegistrationService domainRegistrationService) {
 
-        this.service = service;
+        this.domainRegistrationService =
+                domainRegistrationService;
     }
 
     @PostMapping("/add")
     public DomainRegistrationDTO add(
             @Valid @RequestBody DomainRegistrationDTO dto) {
 
-        return service.add(dto);
+        return domainRegistrationService.add(dto);
     }
 
     @GetMapping("/getAll")
     public List<DomainRegistrationDTO> getAll() {
-        return service.getAll();
+
+        return domainRegistrationService.getAll();
     }
 
     @GetMapping("/getById/{id}")
     public DomainRegistrationDTO getById(
             @PathVariable Long id) {
 
-        return service.getById(id);
+        return domainRegistrationService.getById(id);
     }
 
     @PutMapping("/update/{id}")
@@ -43,15 +45,29 @@ public class DomainRegistrationController {
             @PathVariable Long id,
             @Valid @RequestBody DomainRegistrationDTO dto) {
 
-        return service.update(id, dto);
+        return domainRegistrationService.update(
+                id,
+                dto
+        );
+    }
+
+    @PutMapping("/renew/{id}")
+    public DomainRegistrationDTO renew(
+            @PathVariable Long id,
+            @Valid @RequestBody DomainRegistrationDTO dto) {
+
+        return domainRegistrationService.renew(
+                id,
+                dto
+        );
     }
 
     @DeleteMapping("/delete/{id}")
     public String delete(
             @PathVariable Long id) {
 
-        service.delete(id);
+        domainRegistrationService.delete(id);
 
-        return "Domain Registration deleted successfully";
+        return "Domain registration deleted successfully";
     }
 }

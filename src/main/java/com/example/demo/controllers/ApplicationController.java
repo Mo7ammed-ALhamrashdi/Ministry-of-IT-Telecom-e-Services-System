@@ -1,6 +1,7 @@
 package com.example.demo.controllers;
 
 import com.example.demo.dtos.ApplicationDTO;
+import com.example.demo.enums.ApplicationStatus;
 import com.example.demo.services.ApplicationService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
@@ -16,7 +17,8 @@ public class ApplicationController {
     public ApplicationController(
             ApplicationService applicationService) {
 
-        this.applicationService = applicationService;
+        this.applicationService =
+                applicationService;
     }
 
     @PostMapping("/add")
@@ -28,6 +30,7 @@ public class ApplicationController {
 
     @GetMapping("/getAll")
     public List<ApplicationDTO> getAll() {
+
         return applicationService.getAll();
     }
 
@@ -35,7 +38,40 @@ public class ApplicationController {
     public ApplicationDTO getById(
             @PathVariable Long id) {
 
-        return applicationService.getById(id);
+        return applicationService
+                .getById(id);
+    }
+
+    @GetMapping("/status/{status}")
+    public List<ApplicationDTO> getByStatus(
+            @PathVariable ApplicationStatus status) {
+
+        return applicationService
+                .getByStatus(status);
+    }
+
+    @GetMapping("/citizenHistory/{citizenId}")
+    public List<ApplicationDTO> getCitizenHistory(
+            @PathVariable Long citizenId) {
+
+        return applicationService
+                .getCitizenHistory(citizenId);
+    }
+
+    @PutMapping("/approve/{id}")
+    public ApplicationDTO approve(
+            @PathVariable Long id) {
+
+        return applicationService
+                .approve(id);
+    }
+
+    @PutMapping("/reject/{id}")
+    public ApplicationDTO reject(
+            @PathVariable Long id) {
+
+        return applicationService
+                .reject(id);
     }
 
     @PutMapping("/update/{id}")
@@ -43,7 +79,10 @@ public class ApplicationController {
             @PathVariable Long id,
             @Valid @RequestBody ApplicationDTO dto) {
 
-        return applicationService.update(id, dto);
+        return applicationService.update(
+                id,
+                dto
+        );
     }
 
     @DeleteMapping("/delete/{id}")

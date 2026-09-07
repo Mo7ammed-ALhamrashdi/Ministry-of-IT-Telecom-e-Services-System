@@ -5,6 +5,7 @@ import com.example.demo.services.ProjectService;
 import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
+import java.math.BigDecimal;
 import java.util.List;
 
 @RestController
@@ -28,6 +29,7 @@ public class ProjectController {
 
     @GetMapping("/getAll")
     public List<ProjectDTO> getAll() {
+
         return projectService.getAll();
     }
 
@@ -38,12 +40,39 @@ public class ProjectController {
         return projectService.getById(id);
     }
 
+    @GetMapping("/aboveBudget/{budget}")
+    public List<ProjectDTO> getAboveBudget(
+            @PathVariable BigDecimal budget) {
+
+        return projectService
+                .getProjectsAboveBudget(budget);
+    }
+
+    @GetMapping("/progress/{id}")
+    public Double getProgress(
+            @PathVariable Long id) {
+
+        return projectService
+                .getMilestoneProgress(id);
+    }
+
+    @PutMapping("/complete/{id}")
+    public ProjectDTO complete(
+            @PathVariable Long id) {
+
+        return projectService
+                .completeProject(id);
+    }
+
     @PutMapping("/update/{id}")
     public ProjectDTO update(
             @PathVariable Long id,
             @Valid @RequestBody ProjectDTO dto) {
 
-        return projectService.update(id, dto);
+        return projectService.update(
+                id,
+                dto
+        );
     }
 
     @DeleteMapping("/delete/{id}")
