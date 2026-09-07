@@ -12,6 +12,7 @@ import java.util.List;
 @Service
 public class  OperatorService {
 
+    // Manages telecom operator records used by licenses, inspections, and complaints.
     private final OperatorRepository operatorRepository;
 
     public OperatorService(
@@ -22,6 +23,7 @@ public class  OperatorService {
 
     public OperatorDTO add(OperatorDTO dto) {
 
+        // Operator creation maps DTO contact and licensing fields into a new entity.
         Operator operator = new Operator();
 
         operator.setName(dto.getName());
@@ -82,6 +84,7 @@ public class  OperatorService {
         Operator operator =
                 findOperatorById(id);
 
+        // Soft delete disables the operator without removing related historical records.
         operator.setIsActive(false);
         operator.setUpdatedDate(LocalDateTime.now());
 

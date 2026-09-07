@@ -12,6 +12,7 @@ import java.util.List;
 @Service
 public class   CitizenService {
 
+    // Handles citizen records used by applications, complaints, and domain registrations.
     private final CitizenRepository citizenRepository;
 
     public CitizenService(
@@ -22,6 +23,7 @@ public class   CitizenService {
 
     public CitizenDTO add(CitizenDTO dto) {
 
+        // Citizen creation copies client-supplied identity/contact fields and initializes audit fields.
         Citizen citizen = new Citizen();
 
         citizen.setName(dto.getName());
@@ -82,6 +84,7 @@ public class   CitizenService {
         Citizen citizen =
                 findCitizenById(id);
 
+        // Soft delete keeps citizen references intact while removing the record from active workflows.
         citizen.setIsActive(false);
         citizen.setUpdatedDate(LocalDateTime.now());
 

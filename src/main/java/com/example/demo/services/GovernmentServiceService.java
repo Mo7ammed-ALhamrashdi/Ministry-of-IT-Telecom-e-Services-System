@@ -14,6 +14,7 @@ import java.util.List;
 @Service
 public class  GovernmentServiceService {
 
+    // Maintains ministry service offerings and their department ownership.
     private final MinistryServiceRepository serviceRepository;
     private final DepartmentRepository departmentRepository;
 
@@ -28,6 +29,7 @@ public class  GovernmentServiceService {
     public MinistryServiceDTO add(
             MinistryServiceDTO dto) {
 
+        // The DTO department id is resolved before creating the service entity.
         Department department =
                 findDepartmentById(dto.getDepartmentId());
 
@@ -53,6 +55,7 @@ public class  GovernmentServiceService {
         List<MinistryService> services =
                 serviceRepository.findAll()
                         .stream()
+                        // Normal service lists exclude inactive service offerings.
                         .filter(service ->
                                 Boolean.TRUE.equals(
                                         service.getIsActive()
@@ -82,6 +85,7 @@ public class  GovernmentServiceService {
         Department department =
                 findDepartmentById(dto.getDepartmentId());
 
+        // Updating refreshes the fee, processing time, and department relationship from the DTO.
         service.setName(dto.getName());
         service.setDescription(dto.getDescription());
         service.setFee(dto.getFee());
@@ -99,6 +103,7 @@ public class  GovernmentServiceService {
         MinistryService service =
                 findServiceById(id);
 
+        // Soft delete keeps the service record for historical applications while hiding it from active use.
         service.setIsActive(false);
         service.setUpdatedDate(LocalDateTime.now());
 
