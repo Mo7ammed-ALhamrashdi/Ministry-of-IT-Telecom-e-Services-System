@@ -14,6 +14,7 @@ import java.util.List;
 @Service
 public class  DomainRegistrationService {
 
+    // Owns domain registration, renewal, duplicate checks, and citizen ownership links.
     private final DomainRegistrationRepository domainRegistrationRepository;
     private final CitizenRepository citizenRepository;
 
@@ -36,6 +37,7 @@ public class  DomainRegistrationService {
                         dto.getCitizenId()
                 );
 
+        // Active domain names are unique regardless of letter casing.
         domainRegistrationRepository
                 .findByDomainNameIgnoreCaseAndIsActiveTrue(
                         dto.getDomainName()
@@ -49,6 +51,7 @@ public class  DomainRegistrationService {
         DomainRegistration domainRegistration =
                 new DomainRegistration();
 
+        // The DTO supplies domain dates and status while the service attaches ownership metadata.
         domainRegistration.setDomainName(
                 dto.getDomainName()
         );
@@ -95,6 +98,7 @@ public class  DomainRegistrationService {
                 domainRegistrationRepository
                         .findAll()
                         .stream()
+                        // Soft-deleted registrations are filtered out of public service results.
                         .filter(domain ->
                                 Boolean.TRUE.equals(
                                         domain.getIsActive()
@@ -136,6 +140,7 @@ public class  DomainRegistrationService {
                 )
                 .ifPresent(existingDomain -> {
 
+                    // Updating may keep the same domain name but cannot take another active registration's name.
                     if (!existingDomain
                             .getId()
                             .equals(id)) {
@@ -187,6 +192,7 @@ public class  DomainRegistrationService {
         DomainRegistration domain =
                 findDomainById(id);
 
+        // Renewal changes only the expiry date and update timestamp for the existing registration.
         domain.setExpiryDate(
                 dto.getExpiryDate()
         );

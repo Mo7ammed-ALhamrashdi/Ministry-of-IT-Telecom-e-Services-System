@@ -15,6 +15,7 @@ import java.util.List;
 @Service
 public class  SpectrumLicenseService {
 
+    // Maintains spectrum licenses and validates operator ownership plus license date ranges.
     private final SpectrumLicenseRepository spectrumLicenseRepository;
     private final OperatorRepository operatorRepository;
 
@@ -37,6 +38,7 @@ public class  SpectrumLicenseService {
                         dto.getOperatorId()
                 );
 
+        // Issue and expiry dates are validated before building the license entity.
         validateDates(
                 dto.getIssueDate(),
                 dto.getExpiryDate()
@@ -45,6 +47,7 @@ public class  SpectrumLicenseService {
         SpectrumLicense spectrumLicense =
                 new SpectrumLicense();
 
+        // DTO fields become the license details, while audit and active flags are set by the service.
         spectrumLicense.setBandName(
                 dto.getBandName()
         );
@@ -135,6 +138,7 @@ public class  SpectrumLicenseService {
                 dto.getExpiryDate()
         );
 
+        // Updating a license can change both spectrum details and the active operator relationship.
         license.setBandName(
                 dto.getBandName()
         );
@@ -182,6 +186,7 @@ public class  SpectrumLicenseService {
         LocalDate endDate =
                 today.plusDays(30);
 
+        // The repository query narrows the result set to licenses expiring between today and 30 days out.
         List<SpectrumLicense> licenses =
                 spectrumLicenseRepository
                         .findExpiringLicenses(
@@ -264,6 +269,7 @@ public class  SpectrumLicenseService {
             LocalDate issueDate,
             LocalDate expiryDate) {
 
+        // License dates are mandatory because the expiry rule depends on both values.
         if (issueDate == null ||
                 expiryDate == null) {
 
