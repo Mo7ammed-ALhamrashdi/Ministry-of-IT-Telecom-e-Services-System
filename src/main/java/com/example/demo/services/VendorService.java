@@ -12,6 +12,7 @@ import java.util.List;
 @Service
 public class  VendorService {
 
+    // Manages vendor records that can be associated with ministry projects.
     private final VendorRepository vendorRepository;
 
     public VendorService(
@@ -22,6 +23,7 @@ public class  VendorService {
 
     public VendorDTO add(VendorDTO dto) {
 
+        // Vendor creation copies contact details from the DTO and initializes audit fields.
         Vendor vendor = new Vendor();
 
         vendor.setName(dto.getName());
@@ -42,6 +44,7 @@ public class  VendorService {
         List<Vendor> vendors =
                 vendorRepository.findAll()
                         .stream()
+                        // Active filtering keeps deleted vendors out of project selection lists.
                         .filter(vendor ->
                                 Boolean.TRUE.equals(
                                         vendor.getIsActive()
@@ -82,6 +85,7 @@ public class  VendorService {
         Vendor vendor =
                 findVendorById(id);
 
+        // Soft delete preserves vendor history while preventing normal active lookups.
         vendor.setIsActive(false);
         vendor.setUpdatedDate(LocalDateTime.now());
 

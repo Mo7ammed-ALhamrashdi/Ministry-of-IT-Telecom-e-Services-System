@@ -14,6 +14,7 @@ import java.util.List;
 @Service
 public class  MilestoneService {
 
+    // Manages project milestones and keeps each milestone tied to an active project.
     private final MilestoneRepository milestoneRepository;
     private final ProjectRepository projectRepository;
 
@@ -36,6 +37,7 @@ public class  MilestoneService {
                         dto.getProjectId()
                 );
 
+        // DTO values are copied into a new milestone entity and linked to its project.
         Milestone milestone =
                 new Milestone();
 
@@ -81,6 +83,7 @@ public class  MilestoneService {
                 milestoneRepository
                         .findAll()
                         .stream()
+                        // Inactive milestones remain stored but do not appear in normal reads.
                         .filter(milestone ->
                                 Boolean.TRUE.equals(
                                         milestone.getIsActive()
@@ -149,6 +152,7 @@ public class  MilestoneService {
         Milestone milestone =
                 findMilestoneById(id);
 
+        // Soft delete keeps the milestone history available for existing project relationships.
         milestone.setIsActive(false);
 
         milestone.setUpdatedDate(
@@ -188,6 +192,7 @@ public class  MilestoneService {
     private Project findProjectById(
             Long id) {
 
+        // Parent project lookup prevents milestones from being attached to inactive projects.
         Project project =
                 projectRepository
                         .findById(id)

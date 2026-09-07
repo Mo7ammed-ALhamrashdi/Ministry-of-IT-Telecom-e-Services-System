@@ -20,6 +20,7 @@ import java.util.List;
 @Service
 public class  ProjectService {
 
+    // Handles ministry projects, vendor relationships, milestone progress, and completion rules.
     private final ProjectRepository projectRepository;
     private final MinistryRepository ministryRepository;
     private final VendorRepository vendorRepository;
@@ -36,6 +37,7 @@ public class  ProjectService {
 
     public ProjectDTO add(ProjectDTO dto) {
 
+        // A project must belong to an active ministry before it can be created.
         Ministry ministry =
                 findMinistryById(dto.getMinistryId());
 
@@ -49,6 +51,7 @@ public class  ProjectService {
 
         if (dto.getVendorIds() != null) {
 
+            // Vendor ids from the DTO are resolved to active vendor entities before linking.
             List<Vendor> vendors =
                     findVendors(dto.getVendorIds());
 
@@ -103,6 +106,7 @@ public class  ProjectService {
         project.setStatus(dto.getStatus());
         project.setMinistry(ministry);
 
+        // Existing vendor links are cleared so the DTO becomes the new source of truth.
         project.getVendors().clear();
 
         if (dto.getVendorIds() != null) {
@@ -149,6 +153,7 @@ public class  ProjectService {
                 activeMilestones =
                 project.getMilestones()
                         .stream()
+                        // Progress calculations consider only active milestones attached to the project.
                         .filter(milestone ->
                                 Boolean.TRUE.equals(
                                         milestone.getIsActive()
@@ -157,6 +162,7 @@ public class  ProjectService {
                         .toList();
 
         if (activeMilestones.isEmpty()) {
+            // A project with no active milestones reports zero progress instead of dividing by zero.
             return 0.0;
         }
 
@@ -209,6 +215,7 @@ public class  ProjectService {
 
         if (!allCompleted) {
 
+            // Project completion is allowed only after every active milestone reaches COMPLETED.
             throw new IllegalArgumentException(
                     "All milestones must be completed before completing the project"
             );
@@ -297,6 +304,7 @@ public class  ProjectService {
     private List<Vendor> findVendors(
             List<Long> vendorIds) {
 
+        // Vendor lookup builds the relationship list while failing fast on missing or inactive vendors.
         List<Vendor> vendors =
                 new ArrayList<>();
 
