@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.Complaint;
+import com.example.demo.dtos.ComplaintDTO;
 import com.example.demo.services.ComplaintService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,35 +20,35 @@ public class ComplaintController {
     }
 
     @PostMapping("/add")
-    public Complaint add(
-            @RequestBody Complaint complaint) {
+    public ComplaintDTO add(
+            @Valid @RequestBody ComplaintDTO dto) {
 
-        return complaintService.add(complaint);
+        return complaintService.add(dto);
     }
 
     @GetMapping("/getAll")
-    public List<Complaint> getAll() {
-
+    public List<ComplaintDTO> getAll() {
         return complaintService.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public Complaint getById(
+    public ComplaintDTO getById(
             @PathVariable Long id) {
 
         return complaintService.getById(id);
     }
 
     @PutMapping("/update/{id}")
-    public Complaint update(
+    public ComplaintDTO update(
             @PathVariable Long id,
-            @RequestBody Complaint complaint) {
+            @Valid @RequestBody ComplaintDTO dto) {
 
-        return complaintService.update(id, complaint);
+        return complaintService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(
+            @PathVariable Long id) {
 
         complaintService.delete(id);
 

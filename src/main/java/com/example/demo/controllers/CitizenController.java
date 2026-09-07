@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.Citizen;
+import com.example.demo.dtos.CitizenDTO;
 import com.example.demo.services.CitizenService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,33 +20,35 @@ public class CitizenController {
     }
 
     @PostMapping("/add")
-    public Citizen add(@RequestBody Citizen citizen) {
+    public CitizenDTO add(
+            @Valid @RequestBody CitizenDTO dto) {
 
-        return citizenService.add(citizen);
+        return citizenService.add(dto);
     }
 
     @GetMapping("/getAll")
-    public List<Citizen> getAll() {
-
+    public List<CitizenDTO> getAll() {
         return citizenService.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public Citizen getById(@PathVariable Long id) {
+    public CitizenDTO getById(
+            @PathVariable Long id) {
 
         return citizenService.getById(id);
     }
 
     @PutMapping("/update/{id}")
-    public Citizen update(
+    public CitizenDTO update(
             @PathVariable Long id,
-            @RequestBody Citizen citizen) {
+            @Valid @RequestBody CitizenDTO dto) {
 
-        return citizenService.update(id, citizen);
+        return citizenService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(
+            @PathVariable Long id) {
 
         citizenService.delete(id);
 

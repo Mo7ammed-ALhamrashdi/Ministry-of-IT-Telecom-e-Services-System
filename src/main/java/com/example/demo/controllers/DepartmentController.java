@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.Department;
+import com.example.demo.dtos.DepartmentDTO;
 import com.example.demo.services.DepartmentService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,33 +20,35 @@ public class DepartmentController {
     }
 
     @PostMapping("/add")
-    public Department add(
-            @RequestBody Department department) {
+    public DepartmentDTO add(
+            @Valid @RequestBody DepartmentDTO dto) {
 
-        return departmentService.add(department);
+        return departmentService.add(dto);
     }
 
     @GetMapping("/getAll")
-    public List<Department> getAll() {
+    public List<DepartmentDTO> getAll() {
         return departmentService.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public Department getById(@PathVariable Long id) {
+    public DepartmentDTO getById(
+            @PathVariable Long id) {
 
         return departmentService.getById(id);
     }
 
     @PutMapping("/update/{id}")
-    public Department update(
+    public DepartmentDTO update(
             @PathVariable Long id,
-            @RequestBody Department department) {
+            @Valid @RequestBody DepartmentDTO dto) {
 
-        return departmentService.update(id, department);
+        return departmentService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(
+            @PathVariable Long id) {
 
         departmentService.delete(id);
 

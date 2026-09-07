@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.Project;
+import com.example.demo.dtos.ProjectDTO;
 import com.example.demo.services.ProjectService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,33 +20,35 @@ public class ProjectController {
     }
 
     @PostMapping("/add")
-    public Project add(@RequestBody Project project) {
+    public ProjectDTO add(
+            @Valid @RequestBody ProjectDTO dto) {
 
-        return projectService.add(project);
+        return projectService.add(dto);
     }
 
     @GetMapping("/getAll")
-    public List<Project> getAll() {
-
+    public List<ProjectDTO> getAll() {
         return projectService.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public Project getById(@PathVariable Long id) {
+    public ProjectDTO getById(
+            @PathVariable Long id) {
 
         return projectService.getById(id);
     }
 
     @PutMapping("/update/{id}")
-    public Project update(
+    public ProjectDTO update(
             @PathVariable Long id,
-            @RequestBody Project project) {
+            @Valid @RequestBody ProjectDTO dto) {
 
-        return projectService.update(id, project);
+        return projectService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(
+            @PathVariable Long id) {
 
         projectService.delete(id);
 

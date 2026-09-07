@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.Vendor;
+import com.example.demo.dtos.VendorDTO;
 import com.example.demo.services.VendorService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,33 +20,35 @@ public class VendorController {
     }
 
     @PostMapping("/add")
-    public Vendor add(@RequestBody Vendor vendor) {
+    public VendorDTO add(
+            @Valid @RequestBody VendorDTO dto) {
 
-        return vendorService.add(vendor);
+        return vendorService.add(dto);
     }
 
     @GetMapping("/getAll")
-    public List<Vendor> getAll() {
-
+    public List<VendorDTO> getAll() {
         return vendorService.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public Vendor getById(@PathVariable Long id) {
+    public VendorDTO getById(
+            @PathVariable Long id) {
 
         return vendorService.getById(id);
     }
 
     @PutMapping("/update/{id}")
-    public Vendor update(
+    public VendorDTO update(
             @PathVariable Long id,
-            @RequestBody Vendor vendor) {
+            @Valid @RequestBody VendorDTO dto) {
 
-        return vendorService.update(id, vendor);
+        return vendorService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(
+            @PathVariable Long id) {
 
         vendorService.delete(id);
 

@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.Operator;
+import com.example.demo.dtos.OperatorDTO;
 import com.example.demo.services.OperatorService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,33 +20,35 @@ public class OperatorController {
     }
 
     @PostMapping("/add")
-    public Operator add(@RequestBody Operator operator) {
+    public OperatorDTO add(
+            @Valid @RequestBody OperatorDTO dto) {
 
-        return operatorService.add(operator);
+        return operatorService.add(dto);
     }
 
     @GetMapping("/getAll")
-    public List<Operator> getAll() {
-
+    public List<OperatorDTO> getAll() {
         return operatorService.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public Operator getById(@PathVariable Long id) {
+    public OperatorDTO getById(
+            @PathVariable Long id) {
 
         return operatorService.getById(id);
     }
 
     @PutMapping("/update/{id}")
-    public Operator update(
+    public OperatorDTO update(
             @PathVariable Long id,
-            @RequestBody Operator operator) {
+            @Valid @RequestBody OperatorDTO dto) {
 
-        return operatorService.update(id, operator);
+        return operatorService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(
+            @PathVariable Long id) {
 
         operatorService.delete(id);
 

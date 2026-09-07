@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.Inspection;
+import com.example.demo.dtos.InspectionDTO;
 import com.example.demo.services.InspectionService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,35 +20,35 @@ public class InspectionController {
     }
 
     @PostMapping("/add")
-    public Inspection add(
-            @RequestBody Inspection inspection) {
+    public InspectionDTO add(
+            @Valid @RequestBody InspectionDTO dto) {
 
-        return inspectionService.add(inspection);
+        return inspectionService.add(dto);
     }
 
     @GetMapping("/getAll")
-    public List<Inspection> getAll() {
-
+    public List<InspectionDTO> getAll() {
         return inspectionService.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public Inspection getById(
+    public InspectionDTO getById(
             @PathVariable Long id) {
 
         return inspectionService.getById(id);
     }
 
     @PutMapping("/update/{id}")
-    public Inspection update(
+    public InspectionDTO update(
             @PathVariable Long id,
-            @RequestBody Inspection inspection) {
+            @Valid @RequestBody InspectionDTO dto) {
 
-        return inspectionService.update(id, inspection);
+        return inspectionService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(
+            @PathVariable Long id) {
 
         inspectionService.delete(id);
 

@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.SpectrumLicense;
+import com.example.demo.dtos.SpectrumLicenseDTO;
 import com.example.demo.services.SpectrumLicenseService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -20,38 +21,35 @@ public class SpectrumLicenseController {
     }
 
     @PostMapping("/add")
-    public SpectrumLicense add(
-            @RequestBody SpectrumLicense spectrumLicense) {
+    public SpectrumLicenseDTO add(
+            @Valid @RequestBody SpectrumLicenseDTO dto) {
 
-        return spectrumLicenseService.add(
-                spectrumLicense);
+        return spectrumLicenseService.add(dto);
     }
 
     @GetMapping("/getAll")
-    public List<SpectrumLicense> getAll() {
-
+    public List<SpectrumLicenseDTO> getAll() {
         return spectrumLicenseService.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public SpectrumLicense getById(
+    public SpectrumLicenseDTO getById(
             @PathVariable Long id) {
 
         return spectrumLicenseService.getById(id);
     }
 
     @PutMapping("/update/{id}")
-    public SpectrumLicense update(
+    public SpectrumLicenseDTO update(
             @PathVariable Long id,
-            @RequestBody SpectrumLicense spectrumLicense) {
+            @Valid @RequestBody SpectrumLicenseDTO dto) {
 
-        return spectrumLicenseService.update(
-                id,
-                spectrumLicense);
+        return spectrumLicenseService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(
+            @PathVariable Long id) {
 
         spectrumLicenseService.delete(id);
 

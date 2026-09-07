@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.Officer;
+import com.example.demo.dtos.OfficerDTO;
 import com.example.demo.services.OfficerService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,33 +20,35 @@ public class OfficerController {
     }
 
     @PostMapping("/add")
-    public Officer add(@RequestBody Officer officer) {
+    public OfficerDTO add(
+            @Valid @RequestBody OfficerDTO dto) {
 
-        return officerService.add(officer);
+        return officerService.add(dto);
     }
 
     @GetMapping("/getAll")
-    public List<Officer> getAll() {
-
+    public List<OfficerDTO> getAll() {
         return officerService.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public Officer getById(@PathVariable Long id) {
+    public OfficerDTO getById(
+            @PathVariable Long id) {
 
         return officerService.getById(id);
     }
 
     @PutMapping("/update/{id}")
-    public Officer update(
+    public OfficerDTO update(
             @PathVariable Long id,
-            @RequestBody Officer officer) {
+            @Valid @RequestBody OfficerDTO dto) {
 
-        return officerService.update(id, officer);
+        return officerService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(
+            @PathVariable Long id) {
 
         officerService.delete(id);
 

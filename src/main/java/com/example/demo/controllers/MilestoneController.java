@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.Milestone;
+import com.example.demo.dtos.MilestoneDTO;
 import com.example.demo.services.MilestoneService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,35 +20,35 @@ public class MilestoneController {
     }
 
     @PostMapping("/add")
-    public Milestone add(
-            @RequestBody Milestone milestone) {
+    public MilestoneDTO add(
+            @Valid @RequestBody MilestoneDTO dto) {
 
-        return milestoneService.add(milestone);
+        return milestoneService.add(dto);
     }
 
     @GetMapping("/getAll")
-    public List<Milestone> getAll() {
-
+    public List<MilestoneDTO> getAll() {
         return milestoneService.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public Milestone getById(
+    public MilestoneDTO getById(
             @PathVariable Long id) {
 
         return milestoneService.getById(id);
     }
 
     @PutMapping("/update/{id}")
-    public Milestone update(
+    public MilestoneDTO update(
             @PathVariable Long id,
-            @RequestBody Milestone milestone) {
+            @Valid @RequestBody MilestoneDTO dto) {
 
-        return milestoneService.update(id, milestone);
+        return milestoneService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(
+            @PathVariable Long id) {
 
         milestoneService.delete(id);
 

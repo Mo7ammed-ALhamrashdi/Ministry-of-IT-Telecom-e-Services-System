@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.Document;
+import com.example.demo.dtos.DocumentDTO;
 import com.example.demo.services.DocumentService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,35 +20,35 @@ public class DocumentController {
     }
 
     @PostMapping("/add")
-    public Document add(
-            @RequestBody Document document) {
+    public DocumentDTO add(
+            @Valid @RequestBody DocumentDTO dto) {
 
-        return documentService.add(document);
+        return documentService.add(dto);
     }
 
     @GetMapping("/getAll")
-    public List<Document> getAll() {
-
+    public List<DocumentDTO> getAll() {
         return documentService.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public Document getById(
+    public DocumentDTO getById(
             @PathVariable Long id) {
 
         return documentService.getById(id);
     }
 
     @PutMapping("/update/{id}")
-    public Document update(
+    public DocumentDTO update(
             @PathVariable Long id,
-            @RequestBody Document document) {
+            @Valid @RequestBody DocumentDTO dto) {
 
-        return documentService.update(id, document);
+        return documentService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(
+            @PathVariable Long id) {
 
         documentService.delete(id);
 

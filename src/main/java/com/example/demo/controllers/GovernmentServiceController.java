@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.MinistryService;
+import com.example.demo.dtos.MinistryServiceDTO;
 import com.example.demo.services.GovernmentServiceService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,35 +20,35 @@ public class GovernmentServiceController {
     }
 
     @PostMapping("/add")
-    public MinistryService add(
-            @RequestBody MinistryService ministryService) {
+    public MinistryServiceDTO add(
+            @Valid @RequestBody MinistryServiceDTO dto) {
 
-        return service.add(ministryService);
+        return service.add(dto);
     }
 
     @GetMapping("/getAll")
-    public List<MinistryService> getAll() {
-
+    public List<MinistryServiceDTO> getAll() {
         return service.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public MinistryService getById(
+    public MinistryServiceDTO getById(
             @PathVariable Long id) {
 
         return service.getById(id);
     }
 
     @PutMapping("/update/{id}")
-    public MinistryService update(
+    public MinistryServiceDTO update(
             @PathVariable Long id,
-            @RequestBody MinistryService ministryService) {
+            @Valid @RequestBody MinistryServiceDTO dto) {
 
-        return service.update(id, ministryService);
+        return service.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(
+            @PathVariable Long id) {
 
         service.delete(id);
 

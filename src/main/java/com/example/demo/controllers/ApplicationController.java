@@ -1,7 +1,8 @@
 package com.example.demo.controllers;
 
-import com.example.demo.entities.Application;
+import com.example.demo.dtos.ApplicationDTO;
 import com.example.demo.services.ApplicationService;
+import jakarta.validation.Valid;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
@@ -19,35 +20,35 @@ public class ApplicationController {
     }
 
     @PostMapping("/add")
-    public Application add(
-            @RequestBody Application application) {
+    public ApplicationDTO add(
+            @Valid @RequestBody ApplicationDTO dto) {
 
-        return applicationService.add(application);
+        return applicationService.add(dto);
     }
 
     @GetMapping("/getAll")
-    public List<Application> getAll() {
-
+    public List<ApplicationDTO> getAll() {
         return applicationService.getAll();
     }
 
     @GetMapping("/getById/{id}")
-    public Application getById(
+    public ApplicationDTO getById(
             @PathVariable Long id) {
 
         return applicationService.getById(id);
     }
 
     @PutMapping("/update/{id}")
-    public Application update(
+    public ApplicationDTO update(
             @PathVariable Long id,
-            @RequestBody Application application) {
+            @Valid @RequestBody ApplicationDTO dto) {
 
-        return applicationService.update(id, application);
+        return applicationService.update(id, dto);
     }
 
     @DeleteMapping("/delete/{id}")
-    public String delete(@PathVariable Long id) {
+    public String delete(
+            @PathVariable Long id) {
 
         applicationService.delete(id);
 
