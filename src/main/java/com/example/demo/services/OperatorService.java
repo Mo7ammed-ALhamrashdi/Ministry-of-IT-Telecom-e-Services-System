@@ -1,6 +1,8 @@
 package com.example.demo.services;
 
+import com.example.demo.dtos.OperatorDTO;
 import com.example.demo.entities.Operator;
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.OperatorRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,65 +20,92 @@ public class OperatorService {
         this.operatorRepository = operatorRepository;
     }
 
-    public Operator add(Operator operator) {
+    public OperatorDTO add(OperatorDTO dto) {
 
-        operator.setId(null);
+        Operator operator = new Operator();
+
+        operator.setName(dto.getName());
+        operator.setLicenseNumber(dto.getLicenseNumber());
+        operator.setContactEmail(dto.getContactEmail());
+        operator.setCountry(dto.getCountry());
         operator.setIsActive(true);
         operator.setCreatedDate(LocalDateTime.now());
         operator.setUpdatedDate(LocalDateTime.now());
 
-        return operatorRepository.save(operator);
+        return OperatorDTO.convertToDTO(
+                operatorRepository.save(operator)
+        );
     }
 
-    public List<Operator> getAll() {
+    public List<OperatorDTO> getAll() {
 
-        return operatorRepository.findAll()
-                .stream()
-                .filter(operator ->
-                        Boolean.TRUE.equals(
-                                operator.getIsActive()))
-                .toList();
+        List<Operator> operators =
+                operatorRepository.findAll()
+                        .stream()
+                        .filter(operator ->
+                                Boolean.TRUE.equals(
+                                        operator.getIsActive()
+                                )
+                        )
+                        .toList();
+
+        return OperatorDTO.convertToDTO(operators);
     }
 
-    public Operator getById(Long id) {
+    public OperatorDTO getById(Long id) {
+
+        return OperatorDTO.convertToDTO(
+                findOperatorById(id)
+        );
+    }
+
+    public OperatorDTO update(
+            Long id,
+            OperatorDTO dto) {
 
         Operator operator =
-                operatorRepository.findById(id)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Operator not found"));
+                findOperatorById(id);
 
-        if (!Boolean.TRUE.equals(operator.getIsActive())) {
-            throw new RuntimeException("Operator not found");
-        }
-
-        return operator;
-    }
-
-    public Operator update(
-            Long id,
-            Operator request) {
-
-        Operator operator = getById(id);
-
-        operator.setName(request.getName());
-        operator.setLicenseNumber(
-                request.getLicenseNumber());
-        operator.setContactEmail(
-                request.getContactEmail());
-        operator.setCountry(request.getCountry());
+        operator.setName(dto.getName());
+        operator.setLicenseNumber(dto.getLicenseNumber());
+        operator.setContactEmail(dto.getContactEmail());
+        operator.setCountry(dto.getCountry());
         operator.setUpdatedDate(LocalDateTime.now());
 
-        return operatorRepository.save(operator);
+        return OperatorDTO.convertToDTO(
+                operatorRepository.save(operator)
+        );
     }
 
     public void delete(Long id) {
 
-        Operator operator = getById(id);
+        Operator operator =
+                findOperatorById(id);
 
         operator.setIsActive(false);
         operator.setUpdatedDate(LocalDateTime.now());
 
         operatorRepository.save(operator);
+    }
+
+    private Operator findOperatorById(Long id) {
+
+        Operator operator =
+                operatorRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Operator not found with id: " + id
+                                )
+                        );
+
+        if (!Boolean.TRUE.equals(
+                operator.getIsActive())) {
+
+            throw new ResourceNotFoundException(
+                    "Operator not found with id: " + id
+            );
+        }
+
+        return operator;
     }
 }

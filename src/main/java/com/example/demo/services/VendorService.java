@@ -1,6 +1,8 @@
 package com.example.demo.services;
 
+import com.example.demo.dtos.VendorDTO;
 import com.example.demo.entities.Vendor;
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.VendorRepository;
 import org.springframework.stereotype.Service;
 
@@ -18,64 +20,92 @@ public class VendorService {
         this.vendorRepository = vendorRepository;
     }
 
-    public Vendor add(Vendor vendor) {
+    public VendorDTO add(VendorDTO dto) {
 
-        vendor.setId(null);
+        Vendor vendor = new Vendor();
+
+        vendor.setName(dto.getName());
+        vendor.setContactEmail(dto.getContactEmail());
+        vendor.setPhoneNumber(dto.getPhoneNumber());
+        vendor.setCountry(dto.getCountry());
         vendor.setIsActive(true);
         vendor.setCreatedDate(LocalDateTime.now());
         vendor.setUpdatedDate(LocalDateTime.now());
 
-        return vendorRepository.save(vendor);
+        return VendorDTO.convertToDTO(
+                vendorRepository.save(vendor)
+        );
     }
 
-    public List<Vendor> getAll() {
+    public List<VendorDTO> getAll() {
 
-        return vendorRepository.findAll()
-                .stream()
-                .filter(vendor ->
-                        Boolean.TRUE.equals(
-                                vendor.getIsActive()))
-                .toList();
+        List<Vendor> vendors =
+                vendorRepository.findAll()
+                        .stream()
+                        .filter(vendor ->
+                                Boolean.TRUE.equals(
+                                        vendor.getIsActive()
+                                )
+                        )
+                        .toList();
+
+        return VendorDTO.convertToDTO(vendors);
     }
 
-    public Vendor getById(Long id) {
+    public VendorDTO getById(Long id) {
+
+        return VendorDTO.convertToDTO(
+                findVendorById(id)
+        );
+    }
+
+    public VendorDTO update(
+            Long id,
+            VendorDTO dto) {
 
         Vendor vendor =
-                vendorRepository.findById(id)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Vendor not found"));
+                findVendorById(id);
 
-        if (!Boolean.TRUE.equals(vendor.getIsActive())) {
-            throw new RuntimeException(
-                    "Vendor not found");
-        }
-
-        return vendor;
-    }
-
-    public Vendor update(Long id, Vendor request) {
-
-        Vendor vendor = getById(id);
-
-        vendor.setName(request.getName());
-        vendor.setContactEmail(
-                request.getContactEmail());
-        vendor.setPhoneNumber(
-                request.getPhoneNumber());
-        vendor.setCountry(request.getCountry());
+        vendor.setName(dto.getName());
+        vendor.setContactEmail(dto.getContactEmail());
+        vendor.setPhoneNumber(dto.getPhoneNumber());
+        vendor.setCountry(dto.getCountry());
         vendor.setUpdatedDate(LocalDateTime.now());
 
-        return vendorRepository.save(vendor);
+        return VendorDTO.convertToDTO(
+                vendorRepository.save(vendor)
+        );
     }
 
     public void delete(Long id) {
 
-        Vendor vendor = getById(id);
+        Vendor vendor =
+                findVendorById(id);
 
         vendor.setIsActive(false);
         vendor.setUpdatedDate(LocalDateTime.now());
 
         vendorRepository.save(vendor);
+    }
+
+    private Vendor findVendorById(Long id) {
+
+        Vendor vendor =
+                vendorRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Vendor not found with id: " + id
+                                )
+                        );
+
+        if (!Boolean.TRUE.equals(
+                vendor.getIsActive())) {
+
+            throw new ResourceNotFoundException(
+                    "Vendor not found with id: " + id
+            );
+        }
+
+        return vendor;
     }
 }

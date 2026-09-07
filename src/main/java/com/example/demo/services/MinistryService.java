@@ -1,6 +1,8 @@
 package com.example.demo.services;
 
+import com.example.demo.dtos.MinistryDTO;
 import com.example.demo.entities.Ministry;
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.MinistryRepository;
 import org.springframework.stereotype.Service;
 
@@ -16,56 +18,88 @@ public class MinistryService {
         this.ministryRepository = ministryRepository;
     }
 
-    public Ministry add(Ministry ministry) {
+    public MinistryDTO add(MinistryDTO dto) {
 
-        ministry.setId(null);
+        Ministry ministry = new Ministry();
+
+        ministry.setName(dto.getName());
+        ministry.setAddress(dto.getAddress());
         ministry.setIsActive(true);
         ministry.setCreatedDate(LocalDateTime.now());
         ministry.setUpdatedDate(LocalDateTime.now());
 
-        return ministryRepository.save(ministry);
+        Ministry saved = ministryRepository.save(ministry);
+
+        return MinistryDTO.convertToDTO(saved);
     }
 
-    public List<Ministry> getAll() {
+    public List<MinistryDTO> getAll() {
 
-        return ministryRepository.findAll()
-                .stream()
-                .filter(ministry ->
-                        Boolean.TRUE.equals(ministry.getIsActive()))
-                .toList();
+        List<Ministry> ministries =
+                ministryRepository.findAll()
+                        .stream()
+                        .filter(ministry ->
+                                Boolean.TRUE.equals(
+                                        ministry.getIsActive()
+                                )
+                        )
+                        .toList();
+
+        return MinistryDTO.convertToDTO(ministries);
     }
 
-    public Ministry getById(Long id) {
-
-        Ministry ministry = ministryRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException("Ministry not found"));
-
-        if (!Boolean.TRUE.equals(ministry.getIsActive())) {
-            throw new RuntimeException("Ministry not found");
-        }
-
-        return ministry;
+    public MinistryDTO getById(Long id) {
+        return MinistryDTO.convertToDTO(
+                findMinistryById(id)
+        );
     }
 
-    public Ministry update(Long id, Ministry request) {
+    public MinistryDTO update(
+            Long id,
+            MinistryDTO dto) {
 
-        Ministry ministry = getById(id);
+        Ministry ministry =
+                findMinistryById(id);
 
-        ministry.setName(request.getName());
-        ministry.setAddress(request.getAddress());
+        ministry.setName(dto.getName());
+        ministry.setAddress(dto.getAddress());
         ministry.setUpdatedDate(LocalDateTime.now());
 
-        return ministryRepository.save(ministry);
+        Ministry updated =
+                ministryRepository.save(ministry);
+
+        return MinistryDTO.convertToDTO(updated);
     }
 
     public void delete(Long id) {
 
-        Ministry ministry = getById(id);
+        Ministry ministry =
+                findMinistryById(id);
 
         ministry.setIsActive(false);
         ministry.setUpdatedDate(LocalDateTime.now());
 
         ministryRepository.save(ministry);
+    }
+
+    private Ministry findMinistryById(Long id) {
+
+        Ministry ministry =
+                ministryRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Ministry not found with id: " + id
+                                )
+                        );
+
+        if (!Boolean.TRUE.equals(
+                ministry.getIsActive())) {
+
+            throw new ResourceNotFoundException(
+                    "Ministry not found with id: " + id
+            );
+        }
+
+        return ministry;
     }
 }

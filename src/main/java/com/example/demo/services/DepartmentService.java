@@ -1,7 +1,11 @@
 package com.example.demo.services;
 
+import com.example.demo.dtos.DepartmentDTO;
 import com.example.demo.entities.Department;
+import com.example.demo.entities.Ministry;
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.DepartmentRepository;
+import com.example.demo.repositories.MinistryRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -11,69 +15,130 @@ import java.util.List;
 public class DepartmentService {
 
     private final DepartmentRepository departmentRepository;
+    private final MinistryRepository ministryRepository;
 
     public DepartmentService(
-            DepartmentRepository departmentRepository) {
+            DepartmentRepository departmentRepository,
+            MinistryRepository ministryRepository) {
 
         this.departmentRepository = departmentRepository;
+        this.ministryRepository = ministryRepository;
     }
 
-    public Department add(Department department) {
+    public DepartmentDTO add(DepartmentDTO dto) {
 
-        department.setId(null);
+        Ministry ministry =
+                findMinistryById(dto.getMinistryId());
+
+        Department department =
+                new Department();
+
+        department.setName(dto.getName());
+        department.setDescription(dto.getDescription());
+        department.setMinistry(ministry);
         department.setIsActive(true);
         department.setCreatedDate(LocalDateTime.now());
         department.setUpdatedDate(LocalDateTime.now());
 
-        return departmentRepository.save(department);
+        Department saved =
+                departmentRepository.save(department);
+
+        return DepartmentDTO.convertToDTO(saved);
     }
 
-    public List<Department> getAll() {
+    public List<DepartmentDTO> getAll() {
 
-        return departmentRepository.findAll()
-                .stream()
-                .filter(department ->
-                        Boolean.TRUE.equals(
-                                department.getIsActive()))
-                .toList();
+        List<Department> departments =
+                departmentRepository.findAll()
+                        .stream()
+                        .filter(department ->
+                                Boolean.TRUE.equals(
+                                        department.getIsActive()
+                                )
+                        )
+                        .toList();
+
+        return DepartmentDTO.convertToDTO(departments);
     }
 
-    public Department getById(Long id) {
+    public DepartmentDTO getById(Long id) {
+
+        return DepartmentDTO.convertToDTO(
+                findDepartmentById(id)
+        );
+    }
+
+    public DepartmentDTO update(
+            Long id,
+            DepartmentDTO dto) {
 
         Department department =
-                departmentRepository.findById(id)
-                        .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Department not found"));
+                findDepartmentById(id);
 
-        if (!Boolean.TRUE.equals(department.getIsActive())) {
-            throw new RuntimeException("Department not found");
-        }
+        Ministry ministry =
+                findMinistryById(dto.getMinistryId());
 
-        return department;
-    }
-
-    public Department update(
-            Long id,
-            Department request) {
-
-        Department department = getById(id);
-
-        department.setName(request.getName());
-        department.setDescription(request.getDescription());
-        department.setMinistry(request.getMinistry());
+        department.setName(dto.getName());
+        department.setDescription(dto.getDescription());
+        department.setMinistry(ministry);
         department.setUpdatedDate(LocalDateTime.now());
 
-        return departmentRepository.save(department);
+        Department updated =
+                departmentRepository.save(department);
+
+        return DepartmentDTO.convertToDTO(updated);
     }
 
     public void delete(Long id) {
 
-        Department department = getById(id);
+        Department department =
+                findDepartmentById(id);
 
         department.setIsActive(false);
         department.setUpdatedDate(LocalDateTime.now());
 
         departmentRepository.save(department);
+    }
+
+    private Department findDepartmentById(Long id) {
+
+        Department department =
+                departmentRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Department not found with id: " + id
+                                )
+                        );
+
+        if (!Boolean.TRUE.equals(
+                department.getIsActive())) {
+
+            throw new ResourceNotFoundException(
+                    "Department not found with id: " + id
+            );
+        }
+
+        return department;
+    }
+
+    private Ministry findMinistryById(Long id) {
+
+        Ministry ministry =
+                ministryRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Ministry not found with id: " + id
+                                )
+                        );
+
+        if (!Boolean.TRUE.equals(
+                ministry.getIsActive())) {
+
+            throw new ResourceNotFoundException(
+                    "Ministry not found with id: " + id
+            );
+        }
+
+        return ministry;
     }
 }

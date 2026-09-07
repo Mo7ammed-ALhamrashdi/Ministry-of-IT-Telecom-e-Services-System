@@ -1,6 +1,10 @@
 package com.example.demo.services;
 
+import com.example.demo.dtos.SpectrumLicenseDTO;
+import com.example.demo.entities.Operator;
 import com.example.demo.entities.SpectrumLicense;
+import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.repositories.OperatorRepository;
 import com.example.demo.repositories.SpectrumLicenseRepository;
 import org.springframework.stereotype.Service;
 
@@ -10,81 +14,138 @@ import java.util.List;
 @Service
 public class SpectrumLicenseService {
 
-    private final SpectrumLicenseRepository repository;
+    private final SpectrumLicenseRepository licenseRepository;
+    private final OperatorRepository operatorRepository;
 
     public SpectrumLicenseService(
-            SpectrumLicenseRepository repository) {
+            SpectrumLicenseRepository licenseRepository,
+            OperatorRepository operatorRepository) {
 
-        this.repository = repository;
+        this.licenseRepository = licenseRepository;
+        this.operatorRepository = operatorRepository;
     }
 
-    public SpectrumLicense add(
-            SpectrumLicense spectrumLicense) {
+    public SpectrumLicenseDTO add(
+            SpectrumLicenseDTO dto) {
 
-        spectrumLicense.setId(null);
-        spectrumLicense.setIsActive(true);
-        spectrumLicense.setCreatedDate(
-                LocalDateTime.now());
-        spectrumLicense.setUpdatedDate(
-                LocalDateTime.now());
-
-        return repository.save(spectrumLicense);
-    }
-
-    public List<SpectrumLicense> getAll() {
-
-        return repository.findAll()
-                .stream()
-                .filter(license ->
-                        Boolean.TRUE.equals(
-                                license.getIsActive()))
-                .toList();
-    }
-
-    public SpectrumLicense getById(Long id) {
+        Operator operator =
+                findOperatorById(dto.getOperatorId());
 
         SpectrumLicense license =
-                repository.findById(id)
+                new SpectrumLicense();
+
+        license.setBandName(dto.getBandName());
+        license.setFrequencyMhz(dto.getFrequencyMhz());
+        license.setIssueDate(dto.getIssueDate());
+        license.setExpiryDate(dto.getExpiryDate());
+        license.setStatus(dto.getStatus());
+        license.setOperator(operator);
+        license.setIsActive(true);
+        license.setCreatedDate(LocalDateTime.now());
+        license.setUpdatedDate(LocalDateTime.now());
+
+        return SpectrumLicenseDTO.convertToDTO(
+                licenseRepository.save(license)
+        );
+    }
+
+    public List<SpectrumLicenseDTO> getAll() {
+
+        List<SpectrumLicense> licenses =
+                licenseRepository.findAll()
+                        .stream()
+                        .filter(license ->
+                                Boolean.TRUE.equals(
+                                        license.getIsActive()
+                                )
+                        )
+                        .toList();
+
+        return SpectrumLicenseDTO.convertToDTO(
+                licenses
+        );
+    }
+
+    public SpectrumLicenseDTO getById(Long id) {
+
+        return SpectrumLicenseDTO.convertToDTO(
+                findLicenseById(id)
+        );
+    }
+
+    public SpectrumLicenseDTO update(
+            Long id,
+            SpectrumLicenseDTO dto) {
+
+        SpectrumLicense license =
+                findLicenseById(id);
+
+        Operator operator =
+                findOperatorById(dto.getOperatorId());
+
+        license.setBandName(dto.getBandName());
+        license.setFrequencyMhz(dto.getFrequencyMhz());
+        license.setIssueDate(dto.getIssueDate());
+        license.setExpiryDate(dto.getExpiryDate());
+        license.setStatus(dto.getStatus());
+        license.setOperator(operator);
+        license.setUpdatedDate(LocalDateTime.now());
+
+        return SpectrumLicenseDTO.convertToDTO(
+                licenseRepository.save(license)
+        );
+    }
+
+    public void delete(Long id) {
+
+        SpectrumLicense license =
+                findLicenseById(id);
+
+        license.setIsActive(false);
+        license.setUpdatedDate(LocalDateTime.now());
+
+        licenseRepository.save(license);
+    }
+
+    private SpectrumLicense findLicenseById(Long id) {
+
+        SpectrumLicense license =
+                licenseRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Spectrum license not found"));
+                                new ResourceNotFoundException(
+                                        "Spectrum license not found with id: " + id
+                                )
+                        );
 
         if (!Boolean.TRUE.equals(
                 license.getIsActive())) {
 
-            throw new RuntimeException(
-                    "Spectrum license not found");
+            throw new ResourceNotFoundException(
+                    "Spectrum license not found with id: " + id
+            );
         }
 
         return license;
     }
 
-    public SpectrumLicense update(
-            Long id,
-            SpectrumLicense request) {
+    private Operator findOperatorById(Long id) {
 
-        SpectrumLicense license = getById(id);
+        Operator operator =
+                operatorRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Operator not found with id: " + id
+                                )
+                        );
 
-        license.setBandName(request.getBandName());
-        license.setFrequencyMhz(
-                request.getFrequencyMhz());
-        license.setIssueDate(request.getIssueDate());
-        license.setExpiryDate(request.getExpiryDate());
-        license.setStatus(request.getStatus());
-        license.setOperator(request.getOperator());
-        license.setUpdatedDate(LocalDateTime.now());
+        if (!Boolean.TRUE.equals(
+                operator.getIsActive())) {
 
-        return repository.save(license);
-    }
+            throw new ResourceNotFoundException(
+                    "Operator not found with id: " + id
+            );
+        }
 
-    public void delete(Long id) {
-
-        SpectrumLicense license = getById(id);
-
-        license.setIsActive(false);
-        license.setUpdatedDate(LocalDateTime.now());
-
-        repository.save(license);
+        return operator;
     }
 }
-

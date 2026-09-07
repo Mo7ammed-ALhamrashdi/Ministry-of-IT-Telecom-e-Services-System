@@ -1,6 +1,10 @@
 package com.example.demo.services;
 
+import com.example.demo.dtos.OfficerDTO;
+import com.example.demo.entities.Department;
 import com.example.demo.entities.Officer;
+import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.repositories.DepartmentRepository;
 import com.example.demo.repositories.OfficerRepository;
 import org.springframework.stereotype.Service;
 
@@ -11,68 +15,132 @@ import java.util.List;
 public class OfficerService {
 
     private final OfficerRepository officerRepository;
+    private final DepartmentRepository departmentRepository;
 
     public OfficerService(
-            OfficerRepository officerRepository) {
+            OfficerRepository officerRepository,
+            DepartmentRepository departmentRepository) {
 
         this.officerRepository = officerRepository;
+        this.departmentRepository = departmentRepository;
     }
 
-    public Officer add(Officer officer) {
+    public OfficerDTO add(OfficerDTO dto) {
 
-        officer.setId(null);
+        Department department =
+                findDepartmentById(dto.getDepartmentId());
+
+        Officer officer = new Officer();
+
+        officer.setName(dto.getName());
+        officer.setEmail(dto.getEmail());
+        officer.setPhoneNumber(dto.getPhoneNumber());
+        officer.setDesignation(dto.getDesignation());
+        officer.setDepartment(department);
         officer.setIsActive(true);
         officer.setCreatedDate(LocalDateTime.now());
         officer.setUpdatedDate(LocalDateTime.now());
 
-        return officerRepository.save(officer);
+        Officer saved =
+                officerRepository.save(officer);
+
+        return OfficerDTO.convertToDTO(saved);
     }
 
-    public List<Officer> getAll() {
+    public List<OfficerDTO> getAll() {
 
-        return officerRepository.findAll()
-                .stream()
-                .filter(officer ->
-                        Boolean.TRUE.equals(
-                                officer.getIsActive()))
-                .toList();
+        List<Officer> officers =
+                officerRepository.findAll()
+                        .stream()
+                        .filter(officer ->
+                                Boolean.TRUE.equals(
+                                        officer.getIsActive()
+                                )
+                        )
+                        .toList();
+
+        return OfficerDTO.convertToDTO(officers);
     }
 
-    public Officer getById(Long id) {
+    public OfficerDTO getById(Long id) {
 
-        Officer officer = officerRepository.findById(id)
-                .orElseThrow(() ->
-                        new RuntimeException(
-                                "Officer not found"));
-
-        if (!Boolean.TRUE.equals(officer.getIsActive())) {
-            throw new RuntimeException("Officer not found");
-        }
-
-        return officer;
+        return OfficerDTO.convertToDTO(
+                findOfficerById(id)
+        );
     }
 
-    public Officer update(Long id, Officer request) {
+    public OfficerDTO update(
+            Long id,
+            OfficerDTO dto) {
 
-        Officer officer = getById(id);
+        Officer officer =
+                findOfficerById(id);
 
-        officer.setName(request.getName());
-        officer.setEmail(request.getEmail());
-        officer.setPhoneNumber(request.getPhoneNumber());
-        officer.setDesignation(request.getDesignation());
-        officer.setDepartment(request.getDepartment());
+        Department department =
+                findDepartmentById(dto.getDepartmentId());
+
+        officer.setName(dto.getName());
+        officer.setEmail(dto.getEmail());
+        officer.setPhoneNumber(dto.getPhoneNumber());
+        officer.setDesignation(dto.getDesignation());
+        officer.setDepartment(department);
         officer.setUpdatedDate(LocalDateTime.now());
 
-        return officerRepository.save(officer);
+        return OfficerDTO.convertToDTO(
+                officerRepository.save(officer)
+        );
     }
 
     public void delete(Long id) {
 
-        Officer officer = getById(id);
+        Officer officer =
+                findOfficerById(id);
 
         officer.setIsActive(false);
         officer.setUpdatedDate(LocalDateTime.now());
 
         officerRepository.save(officer);
+    }
+
+    private Officer findOfficerById(Long id) {
+
+        Officer officer =
+                officerRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Officer not found with id: " + id
+                                )
+                        );
+
+        if (!Boolean.TRUE.equals(
+                officer.getIsActive())) {
+
+            throw new ResourceNotFoundException(
+                    "Officer not found with id: " + id
+            );
+        }
+
+        return officer;
+    }
+
+    private Department findDepartmentById(Long id) {
+
+        Department department =
+                departmentRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Department not found with id: " + id
+                                )
+                        );
+
+        if (!Boolean.TRUE.equals(
+                department.getIsActive())) {
+
+            throw new ResourceNotFoundException(
+                    "Department not found with id: " + id
+            );
+        }
+
+        return department;
     }
 }

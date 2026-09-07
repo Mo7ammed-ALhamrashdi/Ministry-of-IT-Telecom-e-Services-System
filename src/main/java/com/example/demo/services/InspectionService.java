@@ -1,7 +1,13 @@
 package com.example.demo.services;
 
+import com.example.demo.dtos.InspectionDTO;
 import com.example.demo.entities.Inspection;
+import com.example.demo.entities.Officer;
+import com.example.demo.entities.Operator;
+import com.example.demo.exceptions.ResourceNotFoundException;
 import com.example.demo.repositories.InspectionRepository;
+import com.example.demo.repositories.OfficerRepository;
+import com.example.demo.repositories.OperatorRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -11,78 +17,169 @@ import java.util.List;
 public class InspectionService {
 
     private final InspectionRepository inspectionRepository;
+    private final OperatorRepository operatorRepository;
+    private final OfficerRepository officerRepository;
 
     public InspectionService(
-            InspectionRepository inspectionRepository) {
+            InspectionRepository inspectionRepository,
+            OperatorRepository operatorRepository,
+            OfficerRepository officerRepository) {
 
-        this.inspectionRepository =
-                inspectionRepository;
+        this.inspectionRepository = inspectionRepository;
+        this.operatorRepository = operatorRepository;
+        this.officerRepository = officerRepository;
     }
 
-    public Inspection add(Inspection inspection) {
+    public InspectionDTO add(
+            InspectionDTO dto) {
 
-        inspection.setId(null);
+        Inspection inspection =
+                new Inspection();
+
+        inspection.setInspectionDate(
+                dto.getInspectionDate()
+        );
+
+        inspection.setResult(dto.getResult());
+        inspection.setNotes(dto.getNotes());
+
+        inspection.setOperator(
+                findOperatorById(dto.getOperatorId())
+        );
+
+        inspection.setOfficer(
+                findOfficerById(dto.getOfficerId())
+        );
+
         inspection.setIsActive(true);
         inspection.setCreatedDate(LocalDateTime.now());
         inspection.setUpdatedDate(LocalDateTime.now());
 
-        return inspectionRepository.save(inspection);
+        return InspectionDTO.convertToDTO(
+                inspectionRepository.save(inspection)
+        );
     }
 
-    public List<Inspection> getAll() {
+    public List<InspectionDTO> getAll() {
 
-        return inspectionRepository.findAll()
-                .stream()
-                .filter(inspection ->
-                        Boolean.TRUE.equals(
-                                inspection.getIsActive()))
-                .toList();
+        List<Inspection> inspections =
+                inspectionRepository.findAll()
+                        .stream()
+                        .filter(inspection ->
+                                Boolean.TRUE.equals(
+                                        inspection.getIsActive()
+                                )
+                        )
+                        .toList();
+
+        return InspectionDTO.convertToDTO(
+                inspections
+        );
     }
 
-    public Inspection getById(Long id) {
+    public InspectionDTO getById(Long id) {
+
+        return InspectionDTO.convertToDTO(
+                findInspectionById(id)
+        );
+    }
+
+    public InspectionDTO update(
+            Long id,
+            InspectionDTO dto) {
+
+        Inspection inspection =
+                findInspectionById(id);
+
+        inspection.setInspectionDate(
+                dto.getInspectionDate()
+        );
+
+        inspection.setResult(dto.getResult());
+        inspection.setNotes(dto.getNotes());
+
+        inspection.setOperator(
+                findOperatorById(dto.getOperatorId())
+        );
+
+        inspection.setOfficer(
+                findOfficerById(dto.getOfficerId())
+        );
+
+        inspection.setUpdatedDate(LocalDateTime.now());
+
+        return InspectionDTO.convertToDTO(
+                inspectionRepository.save(inspection)
+        );
+    }
+
+    public void delete(Long id) {
+
+        Inspection inspection =
+                findInspectionById(id);
+
+        inspection.setIsActive(false);
+        inspection.setUpdatedDate(LocalDateTime.now());
+
+        inspectionRepository.save(inspection);
+    }
+
+    private Inspection findInspectionById(Long id) {
 
         Inspection inspection =
                 inspectionRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Inspection not found"));
+                                new ResourceNotFoundException(
+                                        "Inspection not found with id: " + id
+                                )
+                        );
 
         if (!Boolean.TRUE.equals(
                 inspection.getIsActive())) {
 
-            throw new RuntimeException(
-                    "Inspection not found");
+            throw new ResourceNotFoundException(
+                    "Inspection not found with id: " + id
+            );
         }
 
         return inspection;
     }
 
-    public Inspection update(
-            Long id,
-            Inspection request) {
+    private Operator findOperatorById(Long id) {
 
-        Inspection inspection = getById(id);
+        Operator operator =
+                operatorRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Operator not found with id: " + id
+                                )
+                        );
 
-        inspection.setInspectionDate(
-                request.getInspectionDate());
-        inspection.setResult(request.getResult());
-        inspection.setNotes(request.getNotes());
-        inspection.setOperator(request.getOperator());
-        inspection.setOfficer(request.getOfficer());
-        inspection.setUpdatedDate(
-                LocalDateTime.now());
+        if (!Boolean.TRUE.equals(operator.getIsActive())) {
+            throw new ResourceNotFoundException(
+                    "Operator not found with id: " + id
+            );
+        }
 
-        return inspectionRepository.save(inspection);
+        return operator;
     }
 
-    public void delete(Long id) {
+    private Officer findOfficerById(Long id) {
 
-        Inspection inspection = getById(id);
+        Officer officer =
+                officerRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Officer not found with id: " + id
+                                )
+                        );
 
-        inspection.setIsActive(false);
-        inspection.setUpdatedDate(
-                LocalDateTime.now());
+        if (!Boolean.TRUE.equals(officer.getIsActive())) {
+            throw new ResourceNotFoundException(
+                    "Officer not found with id: " + id
+            );
+        }
 
-        inspectionRepository.save(inspection);
+        return officer;
     }
 }

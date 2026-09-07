@@ -1,6 +1,10 @@
 package com.example.demo.services;
 
+import com.example.demo.dtos.DomainRegistrationDTO;
+import com.example.demo.entities.Citizen;
 import com.example.demo.entities.DomainRegistration;
+import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.repositories.CitizenRepository;
 import com.example.demo.repositories.DomainRegistrationRepository;
 import org.springframework.stereotype.Service;
 
@@ -10,82 +14,137 @@ import java.util.List;
 @Service
 public class DomainRegistrationService {
 
-    private final DomainRegistrationRepository repository;
+    private final DomainRegistrationRepository domainRepository;
+    private final CitizenRepository citizenRepository;
 
     public DomainRegistrationService(
-            DomainRegistrationRepository repository) {
+            DomainRegistrationRepository domainRepository,
+            CitizenRepository citizenRepository) {
 
-        this.repository = repository;
+        this.domainRepository = domainRepository;
+        this.citizenRepository = citizenRepository;
     }
 
-    public DomainRegistration add(
-            DomainRegistration domainRegistration) {
+    public DomainRegistrationDTO add(
+            DomainRegistrationDTO dto) {
 
-        domainRegistration.setId(null);
-        domainRegistration.setIsActive(true);
-        domainRegistration.setCreatedDate(
-                LocalDateTime.now());
-        domainRegistration.setUpdatedDate(
-                LocalDateTime.now());
-
-        return repository.save(domainRegistration);
-    }
-
-    public List<DomainRegistration> getAll() {
-
-        return repository.findAll()
-                .stream()
-                .filter(domain ->
-                        Boolean.TRUE.equals(
-                                domain.getIsActive()))
-                .toList();
-    }
-
-    public DomainRegistration getById(Long id) {
+        Citizen citizen =
+                findCitizenById(dto.getCitizenId());
 
         DomainRegistration domain =
-                repository.findById(id)
+                new DomainRegistration();
+
+        domain.setDomainName(dto.getDomainName());
+        domain.setRegisteredDate(dto.getRegisteredDate());
+        domain.setExpiryDate(dto.getExpiryDate());
+        domain.setStatus(dto.getStatus());
+        domain.setCitizen(citizen);
+        domain.setIsActive(true);
+        domain.setCreatedDate(LocalDateTime.now());
+        domain.setUpdatedDate(LocalDateTime.now());
+
+        return DomainRegistrationDTO.convertToDTO(
+                domainRepository.save(domain)
+        );
+    }
+
+    public List<DomainRegistrationDTO> getAll() {
+
+        List<DomainRegistration> domains =
+                domainRepository.findAll()
+                        .stream()
+                        .filter(domain ->
+                                Boolean.TRUE.equals(
+                                        domain.getIsActive()
+                                )
+                        )
+                        .toList();
+
+        return DomainRegistrationDTO.convertToDTO(
+                domains
+        );
+    }
+
+    public DomainRegistrationDTO getById(Long id) {
+
+        return DomainRegistrationDTO.convertToDTO(
+                findDomainById(id)
+        );
+    }
+
+    public DomainRegistrationDTO update(
+            Long id,
+            DomainRegistrationDTO dto) {
+
+        DomainRegistration domain =
+                findDomainById(id);
+
+        Citizen citizen =
+                findCitizenById(dto.getCitizenId());
+
+        domain.setDomainName(dto.getDomainName());
+        domain.setRegisteredDate(dto.getRegisteredDate());
+        domain.setExpiryDate(dto.getExpiryDate());
+        domain.setStatus(dto.getStatus());
+        domain.setCitizen(citizen);
+        domain.setUpdatedDate(LocalDateTime.now());
+
+        return DomainRegistrationDTO.convertToDTO(
+                domainRepository.save(domain)
+        );
+    }
+
+    public void delete(Long id) {
+
+        DomainRegistration domain =
+                findDomainById(id);
+
+        domain.setIsActive(false);
+        domain.setUpdatedDate(LocalDateTime.now());
+
+        domainRepository.save(domain);
+    }
+
+    private DomainRegistration findDomainById(
+            Long id) {
+
+        DomainRegistration domain =
+                domainRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Domain registration not found"));
+                                new ResourceNotFoundException(
+                                        "Domain registration not found with id: " + id
+                                )
+                        );
 
         if (!Boolean.TRUE.equals(
                 domain.getIsActive())) {
 
-            throw new RuntimeException(
-                    "Domain registration not found");
+            throw new ResourceNotFoundException(
+                    "Domain registration not found with id: " + id
+            );
         }
 
         return domain;
     }
 
-    public DomainRegistration update(
-            Long id,
-            DomainRegistration request) {
+    private Citizen findCitizenById(Long id) {
 
-        DomainRegistration domain = getById(id);
+        Citizen citizen =
+                citizenRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Citizen not found with id: " + id
+                                )
+                        );
 
-        domain.setDomainName(
-                request.getDomainName());
-        domain.setRegisteredDate(
-                request.getRegisteredDate());
-        domain.setExpiryDate(
-                request.getExpiryDate());
-        domain.setStatus(request.getStatus());
-        domain.setCitizen(request.getCitizen());
-        domain.setUpdatedDate(
-                LocalDateTime.now());
+        if (!Boolean.TRUE.equals(
+                citizen.getIsActive())) {
 
-        return repository.save(domain);
-    }
+            throw new ResourceNotFoundException(
+                    "Citizen not found with id: " + id
+            );
+        }
 
-    public void delete(Long id) {
-
-        DomainRegistration domain = getById(id);
-
-        domain.setIsActive(false);
-        domain.setUpdatedDate(LocalDateTime.now());
-
-        repository.save(domain);
+        return citizen;
     }
 }

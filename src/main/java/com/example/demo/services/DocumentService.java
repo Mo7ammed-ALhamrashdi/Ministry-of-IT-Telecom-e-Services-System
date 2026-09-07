@@ -1,7 +1,13 @@
 package com.example.demo.services;
 
+import com.example.demo.dtos.DocumentDTO;
+import com.example.demo.entities.Application;
 import com.example.demo.entities.Document;
+import com.example.demo.entities.Project;
+import com.example.demo.exceptions.ResourceNotFoundException;
+import com.example.demo.repositories.ApplicationRepository;
 import com.example.demo.repositories.DocumentRepository;
+import com.example.demo.repositories.ProjectRepository;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDateTime;
@@ -11,80 +17,211 @@ import java.util.List;
 public class DocumentService {
 
     private final DocumentRepository documentRepository;
+    private final ApplicationRepository applicationRepository;
+    private final ProjectRepository projectRepository;
 
     public DocumentService(
-            DocumentRepository documentRepository) {
+            DocumentRepository documentRepository,
+            ApplicationRepository applicationRepository,
+            ProjectRepository projectRepository) {
 
-        this.documentRepository =
-                documentRepository;
+        this.documentRepository = documentRepository;
+        this.applicationRepository = applicationRepository;
+        this.projectRepository = projectRepository;
     }
 
-    public Document add(Document document) {
+    public DocumentDTO add(DocumentDTO dto) {
 
-        document.setId(null);
+        validateDocumentParent(dto);
+
+        Document document = new Document();
+
+        document.setTitle(dto.getTitle());
+        document.setType(dto.getType());
+        document.setUploadDate(dto.getUploadDate());
+
+        if (dto.getApplicationId() != null) {
+            document.setApplication(
+                    findApplicationById(
+                            dto.getApplicationId()
+                    )
+            );
+        }
+
+        if (dto.getProjectId() != null) {
+            document.setProject(
+                    findProjectById(
+                            dto.getProjectId()
+                    )
+            );
+        }
+
         document.setIsActive(true);
         document.setCreatedDate(LocalDateTime.now());
         document.setUpdatedDate(LocalDateTime.now());
 
-        return documentRepository.save(document);
+        return DocumentDTO.convertToDTO(
+                documentRepository.save(document)
+        );
     }
 
-    public List<Document> getAll() {
+    public List<DocumentDTO> getAll() {
 
-        return documentRepository.findAll()
-                .stream()
-                .filter(document ->
-                        Boolean.TRUE.equals(
-                                document.getIsActive()))
-                .toList();
+        List<Document> documents =
+                documentRepository.findAll()
+                        .stream()
+                        .filter(document ->
+                                Boolean.TRUE.equals(
+                                        document.getIsActive()
+                                )
+                        )
+                        .toList();
+
+        return DocumentDTO.convertToDTO(
+                documents
+        );
     }
 
-    public Document getById(Long id) {
+    public DocumentDTO getById(Long id) {
+
+        return DocumentDTO.convertToDTO(
+                findDocumentById(id)
+        );
+    }
+
+    public DocumentDTO update(
+            Long id,
+            DocumentDTO dto) {
+
+        validateDocumentParent(dto);
+
+        Document document =
+                findDocumentById(id);
+
+        document.setTitle(dto.getTitle());
+        document.setType(dto.getType());
+        document.setUploadDate(dto.getUploadDate());
+
+        document.setApplication(null);
+        document.setProject(null);
+
+        if (dto.getApplicationId() != null) {
+
+            document.setApplication(
+                    findApplicationById(
+                            dto.getApplicationId()
+                    )
+            );
+        }
+
+        if (dto.getProjectId() != null) {
+
+            document.setProject(
+                    findProjectById(
+                            dto.getProjectId()
+                    )
+            );
+        }
+
+        document.setUpdatedDate(LocalDateTime.now());
+
+        return DocumentDTO.convertToDTO(
+                documentRepository.save(document)
+        );
+    }
+
+    public void delete(Long id) {
+
+        Document document =
+                findDocumentById(id);
+
+        document.setIsActive(false);
+        document.setUpdatedDate(LocalDateTime.now());
+
+        documentRepository.save(document);
+    }
+
+    private void validateDocumentParent(
+            DocumentDTO dto) {
+
+        if (dto.getApplicationId() == null
+                && dto.getProjectId() == null) {
+
+            throw new IllegalArgumentException(
+                    "Document must belong to an application or project"
+            );
+        }
+
+        if (dto.getApplicationId() != null
+                && dto.getProjectId() != null) {
+
+            throw new IllegalArgumentException(
+                    "Document cannot belong to application and project at the same time"
+            );
+        }
+    }
+
+    private Document findDocumentById(Long id) {
 
         Document document =
                 documentRepository.findById(id)
                         .orElseThrow(() ->
-                                new RuntimeException(
-                                        "Document not found"));
+                                new ResourceNotFoundException(
+                                        "Document not found with id: " + id
+                                )
+                        );
 
         if (!Boolean.TRUE.equals(
                 document.getIsActive())) {
 
-            throw new RuntimeException(
-                    "Document not found");
+            throw new ResourceNotFoundException(
+                    "Document not found with id: " + id
+            );
         }
 
         return document;
     }
 
-    public Document update(
-            Long id,
-            Document request) {
+    private Application findApplicationById(
+            Long id) {
 
-        Document document = getById(id);
+        Application application =
+                applicationRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Application not found with id: " + id
+                                )
+                        );
 
-        document.setTitle(request.getTitle());
-        document.setType(request.getType());
-        document.setUploadDate(
-                request.getUploadDate());
-        document.setApplication(
-                request.getApplication());
-        document.setProject(
-                request.getProject());
-        document.setUpdatedDate(
-                LocalDateTime.now());
+        if (!Boolean.TRUE.equals(
+                application.getIsActive())) {
 
-        return documentRepository.save(document);
+            throw new ResourceNotFoundException(
+                    "Application not found with id: " + id
+            );
+        }
+
+        return application;
     }
 
-    public void delete(Long id) {
+    private Project findProjectById(Long id) {
 
-        Document document = getById(id);
+        Project project =
+                projectRepository.findById(id)
+                        .orElseThrow(() ->
+                                new ResourceNotFoundException(
+                                        "Project not found with id: " + id
+                                )
+                        );
 
-        document.setIsActive(false);
-        document.setUpdatedDate(
-                LocalDateTime.now());
+        if (!Boolean.TRUE.equals(
+                project.getIsActive())) {
 
-        documentRepository.save(document);
+            throw new ResourceNotFoundException(
+                    "Project not found with id: " + id
+            );
+        }
+
+        return project;
     }
 }
