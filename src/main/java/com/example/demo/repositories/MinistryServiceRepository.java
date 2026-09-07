@@ -1,4 +1,10 @@
 package com.example.demo.repositories;
 
-public class MinistryServiceRepository {
+import com.example.demo.entities.MinistryService;
+import org.springframework.data.jpa.repository.JpaRepository;
+import org.springframework.stereotype.Repository;
+
+@Repository
+public interface MinistryServiceRepository
+        extends JpaRepository<MinistryService, Long> {
 }
