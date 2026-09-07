@@ -17,9 +17,5 @@ public class Ministry extends BaseClass {
     @Column(length = 200)
     private String address;
 
-    // TODO:
-    // One Ministry has many Departments
 
-    // TODO:
-    // One Ministry has many Projects
 }
