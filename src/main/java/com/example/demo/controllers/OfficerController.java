@@ -9,8 +9,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/officer")
+// Provides REST endpoints for managing ministry officers.
 public class OfficerController {
 
+    // OfficerService owns officer creation, retrieval, update, and delete behavior.
     private final OfficerService officerService;
 
     public OfficerController(
@@ -19,6 +21,7 @@ public class OfficerController {
         this.officerService = officerService;
     }
 
+    // @RequestBody maps incoming JSON to OfficerDTO, and @Valid enforces DTO validation rules.
     @PostMapping("/add")
     public OfficerDTO add(
             @Valid @RequestBody OfficerDTO dto) {
@@ -26,6 +29,7 @@ public class OfficerController {
         return officerService.add(dto);
     }
 
+    // Lists officers by delegating the read operation to the service layer.
     @GetMapping("/getAll")
     public List<OfficerDTO> getAll() {
         return officerService.getAll();
@@ -38,6 +42,7 @@ public class OfficerController {
         return officerService.getById(id);
     }
 
+    // PUT updates the existing officer identified by the URL id.
     @PutMapping("/update/{id}")
     public OfficerDTO update(
             @PathVariable Long id,

@@ -9,8 +9,10 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/citizen")
+// Exposes citizen management endpoints as JSON-based REST operations.
 public class CitizenController {
 
+    // The service performs citizen operations while the controller handles HTTP details.
     private final CitizenService citizenService;
 
     public CitizenController(
@@ -19,6 +21,7 @@ public class CitizenController {
         this.citizenService = citizenService;
     }
 
+    // @RequestBody converts the incoming JSON into a CitizenDTO before validation.
     @PostMapping("/add")
     public CitizenDTO add(
             @Valid @RequestBody CitizenDTO dto) {
@@ -26,6 +29,7 @@ public class CitizenController {
         return citizenService.add(dto);
     }
 
+    // GET requests retrieve citizen data and do not require a request body.
     @GetMapping("/getAll")
     public List<CitizenDTO> getAll() {
         return citizenService.getAll();
@@ -38,6 +42,7 @@ public class CitizenController {
         return citizenService.getById(id);
     }
 
+    // Returning a DTO keeps the API response separate from the database entity model.
     @PutMapping("/update/{id}")
     public  CitizenDTO update(
             @PathVariable Long id,
