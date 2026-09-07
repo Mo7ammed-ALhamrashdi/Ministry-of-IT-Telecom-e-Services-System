@@ -1,6 +1,6 @@
 package com.example.demo.enums;
 
-public enum MilestoneStatus {
+public enum MilestoneStatus  {
     PENDING,
     IN_PROGRESS,
     COMPLETED

@@ -2,19 +2,14 @@ package com.example.demo.entities;
 
 import com.example.demo.enums.ApplicationStatus;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.EnumType;
-import jakarta.persistence.Enumerated;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.OneToOne;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 import lombok.Getter;
 import lombok.Setter;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
+import java.util.List;
 
 @Getter
 @Setter
@@ -46,4 +41,6 @@ public class Application extends BaseClass {
 
     @OneToOne(mappedBy = "application")
     private Payment payment;
+    @OneToMany(mappedBy = "application")
+    private List<Document> documents = new ArrayList<>();
 }
